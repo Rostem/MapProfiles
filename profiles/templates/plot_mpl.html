@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+ 
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+</style>
+
+
+<p>
+<table class="w3-table-all w3-card-4">
+	<tr>
+		<th> Config.dat path</th>
+		<th> Data path</th>
+	</tr>
+	<tr>
+		<td>  {{ data.config_path }} </td>
+		<td>  {{ config.data_path }} </td>
+	</tr>
+</table>
+
+<p>
+<br>
+
+<h2> <strong> Flatness, Symmetry and OAR % Differences from baselines for {{ data.machine }}-{{ data.date_meas }} </strong></h2>
+
+<div class="w3-container">
+	<h4>
+	<div class="w3-row">
+		<a href="javascript:void(0)" onclick="openTab(event, 'OAR');">
+			<div class="w3-third tablink w3-bottombar w3-hover-light-grey w3-padding">OAR </div> </a>
+		<a href="javascript:void(0)" onclick="openTab(event, 'FnS');">
+			<div class="w3-third tablink w3-bottombar w3-hover-light-grey w3-padding">Flatness and Symmetry</div> </a>
+	</div>
+	</h4>
+	<div id="OAR" class="w3-container metric" style="display:none">
+		<h3 class= "w3-row"> OAR variance from baselines </h3>
+		<div class= "w3-row">
+			<svg viewBox="0 0 2000 500" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="'xminYmin" > {{ graph_oar|safe }} </svg>
+			<!-- With a height of 0 or less, nothing will be rendered -->
+		</div>
+
+		<div class="w3-row-padding">
+			<div class="w3-col  m6 l6 s1 w3-center">
+				<table class="w3-table-all w3-card-4">
+					<tr>
+						<th>Energy</th>
+						<th> -X2 </th>
+						<th> -X1 </th>
+						<th> X1 </th>
+						<th> X2 </th>
+					</tr>
+
+					{% for energy, values in OAR_X.items %}
+					<tr>
+						<td>{{energy}}</td>
+						{% for v in values %}
+						<td>
+							{% if v > 1 or v < -1 %} <div class="w3-red"> <strong> {{v}} </strong> </div>
+							{% else %} {{v}} {% endif %}
+						</td>
+						{% endfor %}
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+			<div class="w3-col  m6 l6 s1 w3-center">
+				<table class="w3-table-all w3-card-4">
+					<tr>
+						<th>Energy</th>
+						<th> -Y2 </th>
+						<th> -Y1 </th>
+						<th> Y1 </th>
+						<th> Y2 </th>
+					</tr>
+
+					{% for energy, values in OAR_Y.items %}
+					<tr>
+						<td>{{energy}}</td>
+						{% for v in values %}
+						<td>
+							{% if v > 1 or v < -1 %} <div class="w3-red"> <strong> {{v}} </strong> </div>
+							{% else %} {{v}} {% endif %}
+						</td>
+						{% endfor %}
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div id="FnS" class="w3-container metric" style="display:none">
+		<h3 class= "w3-row"> Flatness and Symmetry </h3>
+		<div class= "w3-row">
+			<svg viewBox="0 0 2000 500" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="'xminYmin" > {{ graph_fs|safe }} </svg>
+		</div>
+
+		<div class="w3-row">
+			<table class="w3-table-all w3-card-4">
+				<tr>
+					<th>Energy</th>
+					<th> % flat_dif_x </th>
+					<th> % sym_dif_x </th>
+					<th> % flat_dif_y </th>
+					<th> % sym_dif_y </th>
+				</tr>
+
+				{% for energy, values in FlatSym.items %}
+				<tr>
+					<td>{{energy}}</td>
+					{% for v in values %}
+					<td>
+						{% if v > 2 or v < -2 %} <div class="w3-amber"> <strong> {{v}} </strong> </div>
+						{% elif v > 3 or v < -3 %} <div class="w3-redr"> <strong> {{v}} </strong> </div>
+						{% else %}
+						{{v}}
+						{% endif %}
+					</td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+</div>
+
+<br>
+<script>
+function openTab(evt, metricName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("metric");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" w3-border-red", "");
+  }
+  document.getElementById(metricName).style.display = "block";
+  evt.currentTarget.firstElementChild.className += " w3-border-red";
+}
+</script>
+
+{% endblock %}

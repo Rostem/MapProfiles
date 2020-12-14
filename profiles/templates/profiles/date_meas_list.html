@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Available dates of measurement list</h1>
+  {% if date_meas_list %}
+  <ul class="w3-ul">
+    {% for date_meas in date_meas_list %}
+      <li class="w3-display-container">
+        <a href="{{ date_meas.get_absolute_url }}">{{ date_meas.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no measurement dates on record.</p>
+  {% endif %}
+{% endblock %}
+

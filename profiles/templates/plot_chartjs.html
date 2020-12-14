@@ -1,0 +1,495 @@
+<!--
+The post that goes with this pen:
+https://codepen.io/k3no/post/learning-by-example-getting-started-with-chart-js 
+-->
+ 
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1> <strong> OAR % Difference for {{ data.machine }}-{{ data.date_meas }} from baselines </strong></h1>
+
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 90%;
+    }
+
+    td, th {
+      border: 1px sotdd #dddddd;
+      text-atdgn: left;
+      padding: 5px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #eeeeee;
+}
+</style>
+
+<p>
+<table>
+	<tr>
+		<th> Data path</th>
+	</tr>
+	<tr>
+		<td>  {{ data.data_path }} </td>
+	</tr>
+</table>	
+
+<p>
+<br>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+<div class="container">
+  <br />
+  <div class="row">
+    <div class="col-6">  <canvas id="line1"></canvas>  </div>
+    <div class="col-6"> <canvas id="line2"></canvas>  </div>
+  </div>
+</div>
+
+<script>
+var canvas1 = document.getElementById("line1");
+var ctx1 = canvas1.getContext('2d');
+var canvas2 = document.getElementById("line2");
+var ctx2 = canvas2.getContext('2d');
+
+// Global Options:
+Chart.defaults.global.defaultFontColor = 'black';
+Chart.defaults.global.defaultFontSize = 16;
+
+var data_X = {
+  labels: {{ x_labels|safe }},
+  datasets: [
+	{
+      label: "6X",
+      fill: false,
+      borderColor: "red", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "red",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "red",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.6X|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "18X",
+      fill: false,
+      borderColor: "blue", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "blue",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "blue",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.18X|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "6e",
+      fill: false,
+      borderColor: "green", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "green",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "green",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.06e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "9e",
+      fill: false,
+      borderColor: "magenta", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "magenta",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "magenta",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.09e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "12e",
+      fill: false,
+      borderColor: "cyan", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "cyan",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "cyan",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.12e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "16e",
+      fill: false,
+      borderColor: "gray", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "gray",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "gray",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.16e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "20e",
+      fill: false,
+      borderColor: "brown", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "brown",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "brown",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_X.20e|safe }},
+      spanGaps: true,
+    },
+  ]
+};
+
+var data_Y = {
+  labels: {{ y_labels|safe }},
+  datasets: [
+  {
+      label: "6X",
+      fill: false,
+      borderColor: "red", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "red",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "red",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.6X|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "18X",
+      fill: false,
+      borderColor: "blue", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "blue",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "blue",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.18X|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "6e",
+      fill: false,
+      borderColor: "green", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "green",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "green",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.06e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "9e",
+      fill: false,
+      borderColor: "magenta", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "magenta",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "magenta",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.09e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "12e",
+      fill: false,
+      borderColor: "cyan", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "cyan",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "cyan",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.12e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "16e",
+      fill: false,
+      borderColor: "gray", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "gray",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "gray",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.16e|safe }},
+      spanGaps: true,
+    },
+	{
+      label: "20e",
+      fill: false,
+      borderColor: "brown", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderWidth: 1,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "brown",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "brown",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      data: {{ OAR_Y.20e|safe }},
+      spanGaps: true,
+    },
+  ]
+};
+
+
+// Notice the scaleLabel at the same level as Ticks
+var options_X = {
+  scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    maxTicksLimit: 7,
+                    suggestedMin: -1,
+                    suggestedMax: 1
+
+                },
+                scaleLabel: {
+                     display: true,
+                     labelString: 'OAR X diff (\%)',
+                     fontSize: 20 
+                  }
+            }],            
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                scaleLabel: {
+                     display: true,
+                     labelString: '',
+                     fontSize: 20 
+                  }
+            }]            
+        }  
+};
+
+var options_Y = {
+  scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    maxTicksLimit: 7,
+                    suggestedMin: -1,
+                    suggestedMax: 1
+                },
+                scaleLabel: {
+                     display: true,
+                     labelString: 'OAR Y diff (\%)',
+                     fontSize: 20 
+                  }
+            }],            
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                scaleLabel: {
+                     display: true,
+                     labelString: '',
+                     fontSize: 20 
+                  }
+            }]            
+        }  
+};
+
+
+// Chart declaration:
+var myLine1 = new Chart(ctx1, {
+  type: 'line',
+  data: data_X,
+  options: options_X,
+});
+
+var myLine2 = new Chart(ctx2, {
+  type: 'line',
+  data: data_Y,
+  options: options_Y,
+});
+
+</script>
+
+<div class="container">
+  <br />
+  <div class="row">
+    <div class="col-6">  
+		<table>
+			<tr> 
+				<th>Energy</th>
+				<th> -X2 </th>
+				<th> -X1 </th>
+				<th> X1 </th>
+				<th> X2 </th> 
+			</tr>
+
+			{% for key, values in OAR_X.items %}
+			<tr>
+				<td>{{key}}</td>
+				{% for v in values %}
+				<td>{{v}}</td>
+				{% endfor %}
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+    <div class="col-6"> 
+		<table>
+			<tr> 
+				<th>Energy</th>
+				<th> -Y2 </th>
+				<th> -Y1 </th>
+				<th> Y1 </th>
+				<th> Y2 </th> 
+			</tr>
+
+			{% for key, values in OAR_Y.items %}
+			<tr>
+				<td>{{key}}</td>
+				{% for v in values %}
+				<td>{{v}}</td>
+				{% endfor %}
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+  </div>
+</div>
+	
+<br>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Machine List</h1>
+  {% if machine_list %}
+  <ul class="w3-ul">
+    {% for machine in machine_list %}
+      <li class="w3-display-container">
+        <a href="{{ machine.get_absolute_url }}">{{ machine.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no machines on record.</p>
+  {% endif %}
+{% endblock %}
