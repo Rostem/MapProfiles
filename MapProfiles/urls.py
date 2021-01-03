@@ -25,10 +25,10 @@ urlpatterns = [
    	path('profiles/', include('profiles.urls')),
    	]
 
-# redirects project url to profiles/urls.py
-urlpatterns += [
-    path('', RedirectView.as_view(url='profiles/', permanent=True)),
-    ]
+#redirects project url to profiles/urls.py
+#urlpatterns += [
+    #path('', RedirectView.as_view(url='profiles/', permanent=True)),
+    #]
 
 # Use static() to add url mapping to serve static files during development (only)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

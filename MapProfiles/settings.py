@@ -21,15 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'vnx#&+q3!1im0idyqg$&h5m1p*m9pwzm4p(9i)08usi2rn)nfi'
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'vnx#&+q3!1im0idyqg$&h5m1p*m9pwzm4p(9i)08usi2rn)nfi')
+with open('secret_key.txt') as f:
+    SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -125,6 +124,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

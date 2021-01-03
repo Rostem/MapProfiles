@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2><b> {{title}}<b> </h2>
+<h4>
+This app analyzes measured mapcheck files and calculates various profile metrics, such as off-axis ratios at user defined points. Flatness and symmetry and their % variation from the baselines are also calculated. It also generates and saves excel files with each tab listing all metrics per the date of measurement, and the png images of the OAR plots and X-Y beam profiles to let user review images at a later time (the plot of flatness and symmetry is not saved). Currently the saved pngs of OARs and X-Y profiles, and xls files are saved in the same folder as your config file.
+<p>
+Please note, that there is more than one definition for for flatness and symmetry. User can switch between various definition from within the config file. For example, to use IEC definition, replace 0 with IEC. The metrics will read the device detector rows, extract profiles, center them, apply some light smoothing and will calculate the requested metrics.
+<p>
+<b>Usage:</b>
+<p>
+<ol>
+<li> Reset all data - this will clear database from previous runs,
+<li> Load Config - this needs to be done only once per session, to set the config.dat file which has all our local settings.
+<li> Select Data - this will present with choices of machines (read from your config file) and dates of
+measurement (also read from you config file). After making a selection, click on Process button in the
+form. The program will analyse your macheck data files based on the machine and date qualifieres in the file names and present
+plots and tables for various metrics.
+</ol>
+<p>
+<b>File and folder naming:</b>
+<p>
+It is best to not use spaces in file or folder names (spaces were not tested, so if the program crashes - it's on you:). The program uses "-" separater within the file name. But the folders can use either "_" or "-" or no separators between the words.
+Create a folder where you want to keep you mapcheck txt files. You can name this folder anything you like. For example "Mapcheck_data". Next create subfolders and name your folders by your machine names. For example at old Harrison we use "IX" for the 23IX machine and "EX" for the 21EX machine. So in this case I have IX and EX folders. The program will look for the data files specific to your a particular machine in the ...\Your_mapcheck_data\your_specific_machine_name folder.
+<p>
+When you record your mapcheck data - save it into a file by separating machine names, year, month, and the energy by the dash "-". For example, MyMachine1-2020-11-6x, my_machine_2-2020-12-10FFF, etc. Machine names are case sensitive. 2020 - is year and 11 and 12 are month numbers and 6x, 10FFF are your energies. Energies can be 6X, 6x, 06X. 9e, 09e, 12E, etc. Energies must be 5 or less characters long, the case and 0-padding does not matter.  The program will update your file names by converting all your energies to upper case and pad them with zeros to make them 5 characters long. Date is e.g. 2020-11, and the dates in your file name must match the date_list values in the config.dat. Here are more examples for the file names:
+<ul>
+<li> MyTB1-2020-12-9e.txt</li>
+<li> AwesomeLinac-2021-01-10FFF.txt</li>
+<li> Note proper format: machine-year#-month#-energy.txt. Month must be zero padded. Or you will have to remember to match the month number, when saving files, with the date entry in your config.dat. If you save your file as mymachine-2021-1-10X, but your config files has a listing with 2021-01, this file will not be detected (at least in the current version). But if your config.dat listing has it as 2021-1 - you are all set. </li>
+</ul>
+<p>
+<b>Config settings:</b>
+<p>
+The config file consists of lines with comma separated values. The first value is the keyword and cannot be changed. If the keyword is changed - the program will not be able to read the associated value(s) for the keyword. The keywods are mostly self-explanatory. You can see, save and modify a sample config.dat file at the bottom of this page.
+
+<table class="w3-table-all w3-card-4">
+	<tr>
+		<td>
+		energy_list
+		</td>
+		<td>
+		currently not used
+		</td>
+	</tr>
+	<tr>
+		<td>machine_list
+		</td>
+		<td>Enter exact names of your machines, separated by comma. Case of machine names is important. (only energies are case-insensitive).
+		</td>
+	</tr>
+	<tr>
+		<td>date_list
+		</td>
+		<td> enter using this format: 2019-12, 2021-01, 2021-02,  etc
+		</td>
+	</tr>
+	<tr>
+		<td>baseline_date, 2019-11
+		</td>
+		<td> this is your baseline date, any data file that has this date will be used as a baseline for comparison to other files.
+		</td>
+	</tr>
+	<tr>
+		<td>data_path, C:\My other foders ...\MyData
+		</td>
+		<td>MyData is where your will have subfolders MyData\Machine1, MyData\Machine2, etc subfolders.
+		</td>
+	</tr>
+	<tr>
+		<td>field_size, 20
+		</td>
+		<td>20 cm is default field size used to acquire data. Change to 15x15 or 10x10 if you used these field sizes.
+		</td>
+	</tr>
+	<tr>
+		<td>eval_range, 0.8
+		</td>
+		<td> data points will be evaluated within 80% of the field size. Change to 0.5 if your want only the central 50% of field size for evaluation.
+		</td>
+	</tr>
+	<tr>
+		<td>eval_coordinates, 3, 6
+		</td>
+		<td>OARs will be calculated at -6, -3, 3, 6 cm off-axis. Change if you want different coordinates for your OARs.
+		</td>
+	</tr>
+	<tr>
+		<td>detector_spacing, 0.5
+		</td>
+		<td>Mapcheck detector spacing. If SNC makes a mapcheck with 3 mm spacing, we will change this to 0.3
+		</td>
+	</tr>
+	<tr>
+		<td>tolerance_metric, 1, 1.5
+		</td>
+		<td>Toleance (%) settings for metric = fs or oar (fs=flatness and symmetry). The first number is the Warning level and the 2nd is the Fail level.
+		</td>
+	</tr>
+
+	<tr>
+		<td> flat_def, maxmin, #iec
+		</td>
+		<td>default definition for flatness is "maxmin". Replace with iec, if you want to use IEC definition. Do not forget to place comma after your choice.
+		</td>
+	</tr>
+
+	<tr>
+		<td> sym_def, mean, #iec, max
+		</td>
+		<td>default definition for symmetry is "mean", but user can replace it with iec,
+		</td>
+	</tr>
+
+	<tr>
+		<td> win_*** - are window settings.
+		</td>
+		<td>Do not change these. These parameters are used to control plot settings.
+		</td>
+	</tr>
+</table>
+<p>
+<b> Sample config.dat file </b> (copy and paste to your config.dat). Location for your config.dat can be anywhere.
+</h4>
+<h6>
+<p>
+energy_list, 6X, 18X, 06e, 09e, 12e, 16e, 20e <br>
+machine_list, IX, EX<br>
+date_list, 2019-12, 2020-01, 2020-02, 2020-03, 2020-08, 2020-09, 2020-10, 2020-11, 2020-12<br>
+baseline_date, 2019-11<br>
+data_path, /home/rb/Projects/mapcheck_profiles/data/<br>
+field_size, 20<br>
+eval_range, 0.8 ,<br>
+eval_coordinates, 3, 6<br>
+detector_spacing, 0.5<br>
+tolerance_oar, 1, 1.5<br>
+tolerance_fs, 1, 1.5<br>
+flat_def, maxmin, #iec<br>
+sym_def, mean, #iec, max<br>
+win_width, 6<br>
+win_height , 4<br>
+win_font_size, medium<br>
+win_dpi, 100<br>
+win_marker_size, 5<br>
+win_line_width, 1<br>
+<br>
+</h6>
+<p>
+
+
+{% endblock %}
+

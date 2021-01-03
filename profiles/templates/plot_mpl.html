@@ -1,148 +1,290 @@
 <!DOCTYPE html>
- 
+
 {% extends 'base.html' %}
 
 {% block content %}
 
 <style>
+/* Style the buttons inside the tab */
+.tab button {
+	background-color: inherit;
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 14px 16px;
+	transition: 0.3s;
+	font-size: 17px;
+  }
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #fff;
+  border: 5px solid red;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+}
 
 </style>
 
+{% if user.is_authenticated %}
 
-<p>
-<table class="w3-table-all w3-card-4">
-	<tr>
-		<th> Config.dat path</th>
-		<th> Data path</th>
-	</tr>
-	<tr>
-		<td>  {{ data.config_path }} </td>
-		<td>  {{ config.data_path }} </td>
-	</tr>
-</table>
-
-<p>
 <br>
+<h2> <strong> Profile analysis for {{ data.machine }}-{{ data.date_meas }} </strong></h2>
 
-<h2> <strong> Flatness, Symmetry and OAR % Differences from baselines for {{ data.machine }}-{{ data.date_meas }} </strong></h2>
-
-<div class="w3-container">
+<div class="w3-container" style="width:90% height:90%">
 	<h4>
-	<div class="w3-row">
-		<a href="javascript:void(0)" onclick="openTab(event, 'OAR');">
-			<div class="w3-third tablink w3-bottombar w3-hover-light-grey w3-padding">OAR </div> </a>
-		<a href="javascript:void(0)" onclick="openTab(event, 'FnS');">
-			<div class="w3-third tablink w3-bottombar w3-hover-light-grey w3-padding">Flatness and Symmetry</div> </a>
-	</div>
-	</h4>
-	<div id="OAR" class="w3-container metric" style="display:none">
-		<h3 class= "w3-row"> OAR variance from baselines </h3>
-		<div class= "w3-row">
-			<svg viewBox="0 0 2000 500" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="'xminYmin" > {{ graph_oar|safe }} </svg>
-			<!-- With a height of 0 or less, nothing will be rendered -->
+		<div class="tab">
+			<button class="tablinks" onclick="openTab(event, 'AFiles')" id="defaultOpen"> Analyzed files</button>
+			<button class="tablinks" onclick="openTab(event, 'OAR')"> OAR % difference</button>
+			<button class="tablinks" onclick="openTab(event, 'FS')"> Flatness and Symmetry % Difference</button>
+			<button class="tablinks" onclick="openTab(event, 'Prof')"> X and Y Profiles</button>
 		</div>
+
+	</h4>
+
+	<div id="AFiles" class="tabcontent">
+		<div class="w3-row-padding">
+			<p>
+			<div class="w3-col l6 m4 s2 w3-center">
+				<table class="w3-table-all  w3-right-aligned w3-card-4">
+					<thead>
+					<tr class="w3-blue">
+						<th>Energy</th>
+						<th>Monthly Data Files</th>
+					</tr>
+					</thead>
+
+				{% for e, v in data_fnames.items %}
+					<tr>
+						<td>{{e}}</td>
+						<td>{{v}}</td>
+					</tr>
+				{% endfor %}
+				</table>
+			</div>
+
+			<div class="w3-col l6 m4 s2 w3-center">
+				<table class="w3-table-all  w3-right-aligned w3-card-4">
+					<thead>
+					<tr class="w3-blue">
+						<th>Energy</th>
+						<th>Baseline Files</th>
+					</tr>
+					</thead>
+
+				{% for e, v in base_fnames.items %}
+					<tr>
+						<td>{{e}}</td>
+						<td>{{v}}</td>
+					</tr>
+				{% endfor %}
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div id="OAR" class="tabcontent">
+		<div class= "w3-row-padding">
+			<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> {{graph_oar|safe }}	</svg>
+		</div>
+
+		<br>
+		<div class="button button_r12">
+			<div class="w3-center w3-card-4">
+			OAR % dif tolerances: warning: >{{ config.tol_oar.p1 }}, fail: >{{ config.tol_oar.p2 }}. (Read from config)
+			</div>
+		</div>
+		<br>
 
 		<div class="w3-row-padding">
-			<div class="w3-col  m6 l6 s1 w3-center">
-				<table class="w3-table-all w3-card-4">
-					<tr>
-						<th>Energy</th>
-						<th> -X2 </th>
-						<th> -X1 </th>
-						<th> X1 </th>
-						<th> X2 </th>
-					</tr>
 
-					{% for energy, values in OAR_X.items %}
+			<div class="w3-col l6 m4 s2 w3-center">
+				<table class="w3-table-all  w3-right-aligned w3-card-4">
+					<thead>
+					<tr class="w3-blue">
+						<th>Axis</th>
+						<th>Energy</th>
+						{% for c in oar_coord %}
+						<th> % OAR_dif ({{c}}) </th>
+						{% endfor %}
+					</tr>
+					</thead>
+
+				{% for e, values in OAR_dif.X.items %}
 					<tr>
-						<td>{{energy}}</td>
+						<td>X</td>
+						<td>{{e}}</td>
 						{% for v in values %}
 						<td>
-							{% if v > 1 or v < -1 %} <div class="w3-red"> <strong> {{v}} </strong> </div>
-							{% else %} {{v}} {% endif %}
+							{% if v > config.tol_oar.p2 or v < config.tol_oar.n2 %}
+								<div class="w3-red"> <strong> {{v}} </strong> </div>
+							{% elif v > config.tol_oar.p1 or v < config.tol_oar.n1 %}
+								<div class="w3-amber"> <strong> {{v}} </strong> </div>
+							{% else %}
+								{{v}}
+							{% endif %}
 						</td>
 						{% endfor %}
 					</tr>
-					{% endfor %}
+				{% endfor %}
 				</table>
 			</div>
-			<div class="w3-col  m6 l6 s1 w3-center">
-				<table class="w3-table-all w3-card-4">
-					<tr>
+			<div class="w3-col l6 m4 s2 w3-center">
+				<table class="w3-table-all  w3-right-aligned w3-card-4">
+					<thead>
+					<tr class="w3-blue">
+						<th>Axis</th>
 						<th>Energy</th>
-						<th> -Y2 </th>
-						<th> -Y1 </th>
-						<th> Y1 </th>
-						<th> Y2 </th>
+						{% for c in oar_coord %}
+						<th> % OAR_dif ({{c}}) </th>
+						{% endfor %}
 					</tr>
+					</thead>
 
-					{% for energy, values in OAR_Y.items %}
+				{% for e, values in OAR_dif.Y.items %}
 					<tr>
-						<td>{{energy}}</td>
+						<td>Y</td>
+						<td>{{e}}</td>
 						{% for v in values %}
 						<td>
-							{% if v > 1 or v < -1 %} <div class="w3-red"> <strong> {{v}} </strong> </div>
-							{% else %} {{v}} {% endif %}
+							{% if v > config.tol_oar.p2 or v < config.tol_oar.n2 %}
+								<div class="w3-red"> <strong> {{v}} </strong> </div>
+							{% elif v > config.tol_oar.p1 or v < config.tol_oar.n1 %}
+								<div class="w3-amber"> <strong> {{v}} </strong> </div>
+							{% else %}
+								{{v}}
+							{% endif %}
 						</td>
 						{% endfor %}
 					</tr>
-					{% endfor %}
+				{% endfor %}
 				</table>
 			</div>
 		</div>
 	</div>
 
-	<div id="FnS" class="w3-container metric" style="display:none">
-		<h3 class= "w3-row"> Flatness and Symmetry </h3>
-		<div class= "w3-row">
-			<svg viewBox="0 0 2000 500" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="'xminYmin" > {{ graph_fs|safe }} </svg>
+	<div id="FS" class="tabcontent">
+		<div class= "w3-row-padding">
+			<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> > {{ graph_fs|safe }} </svg>
 		</div>
 
-		<div class="w3-row">
-			<table class="w3-table-all w3-card-4">
-				<tr>
+		<br>
+		<div class="button button_r12">
+			<div class="w3-center w3-card-4">
+			F & S % dif tolerances: warning: >{{ config.tol_fs.p1 }}, fail: >{{ config.tol_fs.p2 }}. (Read from config)
+			</div>
+		</div>
+		<br>
+
+		<div class="w3-row-padding">
+
+			<div class="w3-col l6 m4 s2  w3-center">
+			<table class="w3-table-all w3-right-aligned w3-card-4">
+				<thead>
+					<tr class="w3-blue">
 					<th>Energy</th>
-					<th> % flat_dif_x </th>
-					<th> % sym_dif_x </th>
-					<th> % flat_dif_y </th>
-					<th> % sym_dif_y </th>
-				</tr>
+					<th>Axis</th>
+					<th> Flat % dif </th>
+					<th> Sym % dif </th>
+					</tr>
+				<thead>
 
-				{% for energy, values in FlatSym.items %}
-				<tr>
-					<td>{{energy}}</td>
-					{% for v in values %}
-					<td>
-						{% if v > 2 or v < -2 %} <div class="w3-amber"> <strong> {{v}} </strong> </div>
-						{% elif v > 3 or v < -3 %} <div class="w3-redr"> <strong> {{v}} </strong> </div>
-						{% else %}
-						{{v}}
-						{% endif %}
-					</td>
-					{% endfor %}
-				</tr>
+			{% for e, values in FS_dif.X.items %}
+					<tr>
+						<td>X</td>
+						<td>{{e}}</td>
+						{% for v in values %}
+						<td>
+							{% if v > config.tol_fs.p2 or v < config.tol_fs.n2 %}
+								<div class="w3-red"> <strong> {{v}} </strong> </div>
+							{% elif v > config.tol_fs.p1 or v < config.tol_fs.n1 %}
+								<div class="w3-amber"> <strong> {{v}} </strong> </div>
+							{% else %}
+								{{v}}
+							{% endif %}
+						</td>
+						{% endfor %}
+					</tr>
 				{% endfor %}
-			</table>
+				</table>
+
+			</div>
+			<div class="w3-col l6 m4 s2  w3-center">
+			<table class="w3-table-all w3-right-aligned w3-card-4">
+				<thead>
+					<tr class="w3-blue">
+					<th>Axis</th>
+					<th>Energy</th>
+					<th> Flat % dif </th>
+					<th> Sym % dif </th>
+					</tr>
+				<thead>
+
+			{% for e, values in FS_dif.Y.items %}
+					<tr>
+						<td>Y</td>
+						<td>{{e}}</td>
+						{% for v in values %}
+						<td>
+							{% if v > config.tol_fs.p2 or v < config.tol_fs.n2 %}
+								<div class="w3-red"> <strong> {{v}} </strong> </div>
+							{% elif v > config.tol_fs.p1 or v < config.tol_fs.n1 %}
+								<div class="w3-amber"> <strong> {{v}} </strong> </div>
+							{% else %}
+								{{v}}
+							{% endif %}
+						</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+				</table>
+			</div>
 		</div>
+	</div>
+
+	<div id="Prof" class="tabcontent">
+		<div class= "w3-row">
+			<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> > {{ graph_prof|safe }} </svg>
 	</div>
 
 </div>
 
+{% else %}
+	<h3 class="w3-red" style="width:50%"> Please login to proceed </h3>
+{% endif %}
+
+<br>
 <br>
 <script>
-function openTab(evt, metricName) {
-  var i, x, tablinks;
-  x = document.getElementsByClassName("metric");
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
   }
-  tablinks = document.getElementsByClassName("tablink");
-  for (i = 0; i < x.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" w3-border-red", "");
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
-  document.getElementById(metricName).style.display = "block";
-  evt.currentTarget.firstElementChild.className += " w3-border-red";
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
 }
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
 </script>
 
 {% endblock %}

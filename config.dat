@@ -1,0 +1,18 @@
+energy_list, 6X, 18X, 06e, 09e, 12e, 16e, 20e, # is user overriden
+machine_list, IX, EX
+date_list, 2019-12, 2020-01, 2020-02, 2020-03
+data_path, /home/rb/Projects/mapcheck_profiles/data
+default_data_path, /home/rb/Projects/mapcheck_profiles/data
+baseline_date, 2019-11
+field_size, 20
+eval_range, 0.8
+eval_coordinates, 3, 6
+detector_spacing, 0.5
+tolerance_oar, 1
+tolerance_fs, 1
+win_width, 6
+win_height , 4
+win_font_size, medium
+win_dpi, 200
+win_marker_size, 5
+win_line_width, 1

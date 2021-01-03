@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Machine List</h1>
+  <h2>Available machines</h2>
+  <h4>
   {% if machine_list %}
   <ul class="w3-ul">
     {% for machine in machine_list %}
@@ -13,4 +14,5 @@
   {% else %}
     <p>There are no machines on record.</p>
   {% endif %}
+</h4>
 {% endblock %}

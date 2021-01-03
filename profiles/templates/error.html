@@ -1,12 +1,18 @@
- 
+
 {% extends "base.html" %}
-{% block title %}
-    <title> Profile Analyzer</title>
-{% endblock %}
 
-    
 {% block content %}
+<style>
+.div1 {
+  width: 60%;
+  padding: 50px;
+  border: 1px solid red;
+  box-sizing: border-box;
+}
+</style>
 
-<h1> {{ error_msg }} </h1>
+<h4>
+    <div class=" div1 w3-red"> {{ error_msg|linebreaks}} </div>
+</h4>
 
 {% endblock %}

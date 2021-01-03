@@ -12,7 +12,7 @@ def _interp_splev(xlo, xhi, x, y, k_int):  # will generate xnew and ynew with n 
 	y2 = splev(x2, sp1)
 	# ynew = spline(x, y, xnew, order=1, kind='smoothest', conds=None)   # smoothest
 	return x2, y2
-	
+
 def _interp_1d(xlo, xhi, x, y, k_int):
 	f = interp1d(x, y, kind='linear')  # quadratic , cubic - does not work
 	n = (len(x) - 1) * k_int + 1
@@ -50,6 +50,6 @@ def pct_dif (a, a_base, k_round):
 
 def get_pct_dif(X, X_base):
 	s = []
-	for x, x_base in zip(X, X_base): 	s.append( pct_dif( x, x_base, 1) )
+	for x, x_base in zip(X, X_base): 	s.append( pct_dif( x, x_base, 2) )
 	return s
 

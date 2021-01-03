@@ -3,7 +3,19 @@ import numpy as np
 from . import  data_filters as dfl
 from . import prof_tools as ptl
 
-class mapchk:
+def val_to_ind(x, xa):
+	# returns only one ind
+	 return np.argmin(abs(x-xa) )
+
+def center_profile(x, dx):
+	ic=len(x)//2
+	lev_x = dx[ic]/2
+	i1 = val_to_ind(dx[:ic], lev_x)
+	i2 = ic + val_to_ind(dx[ic:], lev_x)
+	x_corr = (x[i2] + x[i1])/2
+	return x_corr
+
+class Read_mpck:
 	def __init__(self, s_fin, config):
 		fin = open(s_fin, 'r')
 		self.s_f = os.path.split(s_fin)[1]
@@ -18,11 +30,16 @@ class mapchk:
 		self.get_dose()     # -> self.x, self.dx
 		self.xs, self.dxs = dfl.sg_filter(self.x, self.dx, config.k_int, k_sg1, k_sg2, config.n_eval+3)
 		self.ys, self.dys = dfl.sg_filter(self.y, self.dy, config.k_int, k_sg1, k_sg2, config.n_eval+3)
-		self.flat_x, self.sym_x, self.OAR_x = ptl.calc_prof_metrics(self.xs, self.dxs, config.X_eval, config.n_eval_sm)
-		self.flat_y, self.sym_y, self.OAR_y = ptl.calc_prof_metrics(self.ys, self.dys, config.X_eval, config.n_eval_sm)
+		self.flat_x, self.sym_x, self.OAR_x = ptl.calc_prof_metrics(self.xs, self.dxs, config)
+		self.flat_y, self.sym_y, self.OAR_y = ptl.calc_prof_metrics(self.ys, self.dys, config)
 		self.sf =  self.s_f[:-4]
 		self.get_map_pars(self.sf)
-		
+		x_corr = center_profile(self.xs, self.dxs)
+		y_corr = center_profile(self.ys, self.dys)
+		self.xs -= x_corr
+		self.ys -= y_corr
+		#print(f'   mapcheck: x_corr ={ x_corr }, y_corr ={ y_corr } ' )
+
 	def get_map_pars(self, s):
 		a = s.split('-')
 		self.machine,  self.date_meas, self.energy = a[0],  a[1]+'-'+a[2],  a[3]

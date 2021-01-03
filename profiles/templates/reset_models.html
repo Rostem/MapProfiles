@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h4>
+Reading config:
+{% if user.is_authenticated %}
+	<div class="w3-container" style="width:70%">
+		<table>
+			<tr>
+			<tr  class="w3-row">
+				<td> machines: </td>
+				<td> {% for m in all_machines %} {{ m }}, {% endfor%} </td>
+			</tr>
+			<tr class="w3-row">
+				<td> dates: </td>
+				<td>{% for d in all_dates %} {{ d }}, {% endfor%} </td>
+			</tr>
+			<tr class="w3-row">
+				<td> energies:  </td>
+				<td>{% for e in all_energies %} {{ e }}, {% endfor%}  </td>
+			</tr>
+		</table>
+	</div>
+{% endif %}
+</h4>
+
+<br>
+{% endblock %}
+
