@@ -5,18 +5,14 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
-
-from profiles.models import Data, Machine, Date_meas, Energy, ConfigPath
-from profiles.forms import EnterParamsForm, EnterConfigPathForm
 import sys
 import os
+from io import StringIO
 from .src import prof
 from .src import plots
 from .src import config
-from pathlib import Path
-
-from io import StringIO
-import numpy as np
+from profiles.models import Data, Machine, Date_meas, Energy, ConfigPath
+from profiles.forms import EnterParamsForm, EnterConfigPathForm
 
 class MachineListView(generic.ListView):    # is references in urls.py as path('scans/', views.ScanListView.as_view(),..)
 	model = Machine   # will look for template in ../scans/templates/Machine_list.html
