@@ -1,6 +1,5 @@
 # Text backup files
 *.bak
-secret_key.txt
 
 # Database
 *.sqlite3 
