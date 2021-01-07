@@ -19,29 +19,31 @@ def rename_files(path):
 		print(f'   prof.rename_files: something wrong with {path=}')
 		return False
 
-	cnt_fi = 1
+	#print ('\n   rename_files: list of files in ', path)
 	for f in files:
-		notxt = f.split('.')
-		parts = notxt[0].split('-')
-		np = len(parts)
-		if np > 2:
+		parts = f.split('-')
+		if len(parts) > 2:
+			#print ('\n   ', f)
 			newname = ''
 			for i in range(len(parts)):
-				if i==3: parts[i] =  parts[i].upper().zfill(5)
-				newname +=  (parts[i] + '-')  if i < (np-1)  else parts[i]
-			newname += '.txt'
-			if newname != f:
-				for fi in files:
-					if newname == fi:
-						print(f'  prof.rename_files:  got double for: {fi}')
-						newname= newname[:-4] + '-double' + str(cnt_fi) + '.txt'
-						cnt_fi += 1
+				if i==3:
+					dat =[]
+					if 'txt' in parts[i]:
+						dat = parts[i].split('.')
+						parts[i] =  dat[0].upper().zfill(5) + '.txt'
+					else:
+						parts[i] =  parts[i].upper().zfill(5) + '-'
+				else:
+					if 'txt' not in parts[i]:
+						parts[i] = parts[i] + '-'
+				newname += parts[i]
+			if newname not in f:
 				oldf = os.path.join(path, f)
 				newf = os.path.join(path, newname)
 				os.rename(oldf, newf)
-				print (f'        {f} -> {newname}')
+				print (f'   prof.rename_files: {f} -> {newname}')
 			#else:
-			#	print( f'     skipping: {f} = {newname}')
+			#	print( f'   prof: ignoring: newname: {newname} - same as old: {f}')
 	return True
 
 def find_matches(s_dir, s_pat):

@@ -7,12 +7,14 @@
   {% endif %}
 
   {% if next %}
+  <h3>
     {% if user.is_authenticated %}
       <p>Your account doesn't have access to this page. To proceed,
       please login with an account that has access.</p>
     {% else %}
-      <p>Please login to see this page.</p>
+      <p>Please login</p>
     {% endif %}
+  </h3>
   {% endif %}
 
   <form method="post" action="{% url 'login' %}">

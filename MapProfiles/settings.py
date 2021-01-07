@@ -26,9 +26,9 @@ with open(os.path.join(BASE_DIR, 'secret_key.txt') ) as f:
     print(SECRET_KEY[-4:])
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 #DEBUG = False
-#DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 print(f'{DEBUG=}')
 
 #ALLOWED_HOSTS = []
