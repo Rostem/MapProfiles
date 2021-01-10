@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,7 +36,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 ALLOWED_HOSTS = [
 	'localhost',
 	'127.0.0.1',
-	'guarded-journey-76870.herokuapp.com',
+	'beamqa.herokuapp.com',
 	]
 
 # Application definition
@@ -149,3 +150,4 @@ DATABASES['default'].update(db_from_env)
 #   Simplified static file serving.
 #   https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+django_heroku.settings(locals())
