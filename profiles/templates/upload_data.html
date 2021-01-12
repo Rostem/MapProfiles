@@ -4,7 +4,7 @@
 <h4>
 	<div class="w3-container" style="width:50vw" >
 		<form action="" method="post"  enctype="multipart/form-data"  class="w3-light-grey w3-card-4">
-			<label class="w3-text-blue">
+			<label class="w3-text-green">
 			{% csrf_token %}
 				<table class="w3-table-all">
 				{{ form.as_table }}
@@ -13,6 +13,7 @@
 				<input type="submit" value="Apply" class="w3-button w3-blue">
 			</label>
 		</form>
+		This may take a couple of minutes...
 	</div>
 <br>
 </h4>

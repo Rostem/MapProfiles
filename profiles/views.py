@@ -1,3 +1,7 @@
+import sys
+import os
+from io import StringIO
+
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import permission_required
@@ -5,14 +9,16 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
-import sys
-import os
-from io import StringIO
+from django.conf import settings
+
 from .src import prof
 from .src import plots
-from .src import config
+from .src import conf
+
 from profiles.models import Data, Machine, Date_meas, Energy, ConfigPath
 from profiles.forms import EnterParamsForm, EnterConfigPathForm
+from profiles.models import UploadConfig, UploadData
+from profiles.forms import UploadConfigForm, UploadDataForm
 
 class MachineListView(generic.ListView):    # is references in urls.py as path('scans/', views.ScanListView.as_view(),..)
 	model = Machine   # will look for template in ../scans/templates/Machine_list.html
@@ -20,43 +26,53 @@ class MachineListView(generic.ListView):    # is references in urls.py as path('
 class Date_measListView(generic.ListView):    # is references in urls.py as path('scans/', views.ScanListView.as_view(),..)
 	model = Date_meas   # will look for template in ../scans/templates/Machine_list.html
 
+# https://simpleisbetterthancomplex.com/tutorial/2016/08/01/how-to-upload-files-with-django.html
+
 @login_required
 def index(request):
-	#cp = ConfigPath(config_path = ' ')
-	ConfigPath.objects.all().delete()
-	cp = ConfigPath()
-	#cp = get_object_or_404(ConfigPath)
-	print('   index: current path: ', cp.config_path )
 	if request.method == 'POST':
-		form = EnterConfigPathForm(request.POST)
+		form = UploadConfigForm(request.POST, request.FILES)
 		if form.is_valid():
-			cp.config_path = form.cleaned_data['config_path']
-			print('   index: current config path after save: ', cp.config_path )
-			cp.save()
-			return HttpResponseRedirect(reverse('params') )
-	# if a GET (or any other method) we'll create a blank form
+			form.save()
+			return HttpResponseRedirect(reverse('upload-data') )
 	else:
-		form = EnterConfigPathForm()
+		form = UploadConfigForm()
 	context = {
-		'config_path': cp.config_path,
 		'form': form,
 		}
 	return render(request, 'index.html', context)
 
+def upload_data(request):
+	if request.method == 'POST':
+		form = UploadDataForm(request.POST, request.FILES)
+		files = request.FILES.getlist('data_files')
+		if form.is_valid():
+			for f in files:
+				file_instance = UploadData(data_files = f)
+				file_instance.save()
+			return HttpResponseRedirect(reverse('params') )
+	else:
+		form = UploadDataForm()
+	context = {
+		'form': form,
+		}
+	return render(request, 'upload_data.html', context)
+
 def load_config():
-	if (len(ConfigPath.objects.all() ) == 0):	return False, None
-	cp = get_object_or_404(ConfigPath)
-	print('   load_config: current path: ', cp.config_path )
-	if not cp.config_path: 	return False, None
-	config_file = os.path.join(cp.config_path, 'config.dat')
-	print('   load_config: after joins got:', config_file)
+	#if (len(ConfigPath.objects.all() ) == 0):	return False, None
+	#cp = get_object_or_404(ConfigPath)
+	#print('   load_config: current path: ', cp.config_path )
+	#if not cp.config_path: 	return False, None
+
+	config_file = os.path.join(settings.MEDIA_ROOT, 'config/config.dat')
+	print('   load_config: client chose this config:', config_file)
 	if not os.path.isfile(config_file):
 		print('   load_config: config file not found:', config_file)
 		return False, None
 	else:
 		print('   load_config: SUCCESS: Config file was found:', config_file)
 		print('   load_config: will read config paramters now')
-		return True, config.ReadConfig(config_file)
+		return True, conf.ReadConfig(config_file)
 
 @login_required
 def params(request):
@@ -65,21 +81,19 @@ def params(request):
 		print ('   params:  config failed to load')
 		context = {
 			'title': 'Error',
-			'msg': 'Config failed to load. \nPossibly wrong path or trying to Select Data \
-					after Full Data Reset. \nPlease run Load Config first with the correct path to the config.dat file',
+			'msg': 'Config failed to load - possibly wrong file name',
 			}
 		return render( request, 'message.html', context=context )
 	fill_models(config)
 	Data.objects.all().delete()
 	data = Data()
-	data.data_path = config.data_path
-	print( f'   params: config.data_path: {config.data_path}' )
+	data.data_path = os.path.join(settings.MEDIA_ROOT, 'data')
+	print( f'   params: {data.data_path=}' )
 
 	if request.method == 'POST':
 		form = EnterParamsForm(request.POST)
 		if form.is_valid():
-			if not data.data_path: 	print( '   params: WARNING: params: data.data_path = ', data.data_path)
-			#data.data_path = config.data_path
+			if not data.data_path: 	print( f'   params: WARNING: params: {data.data_path=}')
 			data.machine = form.cleaned_data['machine']
 			data.date_meas = form.cleaned_data['date_meas']
 			data.save()
@@ -88,9 +102,9 @@ def params(request):
 	# if a GET (or any other method) we'll create a blank form
 	else:
 		form = EnterParamsForm()
-	print( f'   params: data.data_path: {data.data_path}' )
-	print( f'   params: data.machine: {data.machine}' )
-	print( f'   params: data.date_meas: {data.date_meas}' )
+	print( f'   params: {data.data_path=}' )
+	print( f'   params: {data.machine=}' )
+	print( f'   params: {data.date_meas=}' )
 
 	context = {
 		'form': form,
@@ -125,6 +139,8 @@ def reset_models(request):
 	Energy.objects.all().delete()
 	ConfigPath.objects.all().delete()
 	Data.objects.all().delete()
+	UploadConfig.objects.all().delete()
+	UploadData.objects.all().delete()
 
 	context = {
 		'title': 'Warning',
@@ -180,7 +196,6 @@ def plot_mpl(request):
 		return render( request, 'message.html', context=context )
 
 	data = get_object_or_404(Data)
-	data.data_path = config.data_path
 	print (f'   plot_mpl:  { data.data_path = }')
 	do, error_msg = prof.calc_profiles(data, config)
 	if error_msg:
@@ -202,13 +217,13 @@ def plot_mpl(request):
 	if (str(data.machine).strip() !=0):
 		imgdata = StringIO()
 		s_img =  str(data.machine) + str(data.date_meas)
-		graph_oar = plots.return_oar_graph(imgdata, OAR_dif, oar_coord, config.data_path, s_img)
+		graph_oar = plots.return_oar_graph(imgdata, OAR_dif, oar_coord, data.data_path, s_img)
 
 		imgdata = StringIO()
-		graph_fs = plots.return_fs_graph(imgdata, FS_dif, config.data_path, s_img)
+		graph_fs = plots.return_fs_graph(imgdata, FS_dif, data.data_path, s_img)
 
 		imgdata = StringIO()
-		graph_prof = plots.return_prof_graph(imgdata, D, config.data_path, s_img)
+		graph_prof = plots.return_prof_graph(imgdata, D, data.data_path, s_img)
 
 		imgdata.close()
 
@@ -233,3 +248,4 @@ def plot_mpl(request):
 					- you should have all your Energies and machines imported now into the form choices',
 			}
 		return render( request, 'message.html', context=context )
+

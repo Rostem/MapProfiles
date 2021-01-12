@@ -1,8 +1,7 @@
-energy_list, 6X, 18X, 06e, 09e, 12e, 16e, 20e
+energy_list, X6, 18X, 06e, 09e, 12e, 16e, 20e, 6FFF, 10FFF
 machine_list, IX, EX
 date_list, 2019-12, 2020-01, 2020-02, 2020-03, 2020-08, 2020-09, 2020-10, 2020-11, 2020-12
 baseline_date, 2019-11
-data_path, /home/rb/Projects/mapcheck_profiles/data/
 field_size, 20
 eval_range, 0.8 ,
 eval_coordinates, 3, 6

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h4>
+	<div class="w3-container" style="width:50vw" >
+		<form action="" method="post" class="w3-light-grey w3-card-4">
+			<label class="w3-text-blue">
+			{% csrf_token %}
+				<table class="w3-table-all">
+				{{ form.as_table }}
+				</table>
+
+				<input type="submit" value="Load" class="w3-button w3-blue">
+			</label>
+		</form>
+
+	</div>
+<br>
+
+</h4>
+
+
+<div class="w3-gray w3-text-gray w3-box" style="width:50vw">
+	<ul>For testing only (ignore if you see this):
+		<li>/home/rb/Projects/mapcheck_profiles/data
+		<li>C:\Users\r364075\Documents\Projects\Py\web\data
+	</ul>
+</div>
+<br>
+{% endblock %}
+

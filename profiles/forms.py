@@ -1,4 +1,3 @@
-from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -31,4 +30,22 @@ class EnterConfigPathForm(ModelForm):
 			]
 		labels = {
 			'config_path': _('config.dat full path'),
+			}
+
+# ======== file upload =============
+
+from profiles.models import UploadConfig, UploadData
+from django.forms import ClearableFileInput
+
+class UploadConfigForm(ModelForm):
+    class Meta:
+        model = UploadConfig
+        fields = ['config_file'	]
+
+class UploadDataForm(ModelForm):
+	class Meta:
+		model = UploadData
+		fields = ['data_files']
+		widgets = {
+			'data_files': ClearableFileInput(attrs={'multiple': True}),
 			}

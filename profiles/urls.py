@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
+	path('upload_data', views.upload_data, name='upload-data'),
 	path('params', views.params, name='params'),
 	path('plot_mpl', views.plot_mpl, name='plot-mpl'),
 	path('machines/', views.MachineListView.as_view(), name='machine-list'),

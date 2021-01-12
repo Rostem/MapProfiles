@@ -103,11 +103,12 @@ def check_add_s_metrics(X, tol, s):
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def calc_profiles(data, config):
-	data_path = config.data_path
+	data_path = data.data_path
 	s_machine = str(data.machine)
 	s_date = str(data.date_meas)
 	s_match = '*' + s_machine + '*' + s_date + '*.txt'
-	s_files_path = os.path.join(data_path,  s_machine)
+	#s_files_path = os.path.join(data_path,  s_machine)
+	s_files_path = data_path
 	print ('   calc_profiles: s_files_path = ', s_files_path)
 
 	if not rename_files(s_files_path):
@@ -165,7 +166,7 @@ def calc_profiles(data, config):
 		else:
 			Map = MC.Read_mpck(s_f, config)
 
-		s_base_file = os.path.join(data_path,  Map.machine, Map.machine + '-' + config.baseline_date + '-' + Map.energy + '.txt')
+		s_base_file = os.path.join(data_path, Map.machine + '-' + config.baseline_date + '-' + Map.energy + '.txt')
 		if not os.path.isfile(s_base_file):
 			error_msg = f'   calc_profiles: could not find {s_base_file =}'
 			print(error_msg)

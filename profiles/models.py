@@ -35,3 +35,23 @@ class Energy(models.Model):
 		ordering = ['name']
 	def __str__(self):
 		return self.name
+
+# ======== file upload =============
+#from django.contrib.auth.models import User
+#def user_directory_path(instance, filename):
+	#file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    #return 'user_{0}/{1}'.format(instance.staff.id, filename)
+
+class UploadConfig(models.Model):
+	description = models.CharField(max_length=255, blank=True)
+	#document = models.FileField(upload_to='documents/%Y/%m/%d/') - works
+	config_file = models.FileField(upload_to='config')
+	uploaded_at = models.DateTimeField(auto_now_add=True)
+	#document = models.FileField(upload_to=user_directory_path) - not working
+	#staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+class UploadData(models.Model):
+	data_files = models.FileField(upload_to='data')
+	uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
