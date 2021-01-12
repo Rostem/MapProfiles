@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-	path('index', views.index, name='index'),
+	path('', views.index, name='index'),
 	path('params', views.params, name='params'),
 	path('plot_mpl', views.plot_mpl, name='plot-mpl'),
 	path('machines/', views.MachineListView.as_view(), name='machine-list'),
