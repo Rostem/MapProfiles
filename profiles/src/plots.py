@@ -64,6 +64,7 @@ def	return_prof_graph(imgdata, D, s_path, s_title):
 
 	#fig.savefig(s_img+'_xy_prof.png', format='png', transparent=False)
 	del fig, axes
+	plt.close()
 	return  imgdata.getvalue()
 
 def return_oar_graph(imgdata, OAR_dif, oar_coord, s_path, s_title):
@@ -71,7 +72,7 @@ def return_oar_graph(imgdata, OAR_dif, oar_coord, s_path, s_title):
 	font_size = 'medium'
 	markersize = 5
 	fig = plt.figure()
-	fig, axes = plt.subplots(1, 2, sharex=False, sharey=False, figsize=(6,4))  # set size of svg by figsize.
+	fig, axes = plt.subplots(1, 2, sharex=False, sharey=False, figsize=(8,4))  # set size of svg by figsize.
 	y_labels = [
 		'OAR % Dif',
 		'OAR % Dif',
@@ -112,6 +113,7 @@ def return_oar_graph(imgdata, OAR_dif, oar_coord, s_path, s_title):
 
 	fig.savefig(s_img+'_oar.png', format='png', transparent=False)
 	del fig, axes
+	plt.close()
 	return  imgdata.getvalue()
 
 def return_fs_graph(imgdata, FS,  s_path, s_title):
@@ -119,7 +121,7 @@ def return_fs_graph(imgdata, FS,  s_path, s_title):
 	font_size = 'medium'
 	markersize = 5
 	fig = plt.figure()
-	fig, axes = plt.subplots(1, 2, sharex=False, sharey=False, figsize=(6,4))  # set size of svg by figsize.
+	fig, axes = plt.subplots(1, 2, sharex=False, sharey=False, figsize=(8,4))  # set size of svg by figsize.
 	y_labels = [
 		'F & S % dif',
 		'F & S % dif',
@@ -161,4 +163,62 @@ def return_fs_graph(imgdata, FS,  s_path, s_title):
 
 	#fig.savefig(s_img + '_fs.png', format='png', transparent=False)
 	del fig, ax
+	plt.close()
+	return  imgdata.getvalue()
+
+def return_trends_oar(imgdata, s_coord, Y, s_path, s_title, s_lab, s_y, eval_coordinates):
+	s_img = os.path.join(s_path, s_title)
+	font_size = 'small'
+	fig = plt.figure()
+	fig, ax = plt.subplots(figsize=(8,4), tight_layout=True)  # set size of svg by figsize.
+	y_label = s_y + s_lab + '% dif'
+	ax.set_ylabel(y_label, fontsize=font_size)
+	p1, p2 = eval_coordinates[0], eval_coordinates[1]
+	labels = ['= -'+ str(p1) +' cm','= -'+ str(p2) +' cm','= '+ str(p1) +' cm','= '+ str(p2) +' cm']
+	ax.set_ylim(-1.5,1.5)
+	ax.set_yticks([-1.5, -1, -0.5, 0, 0.5, 1, 1.5], minor=False)
+	ax.tick_params(axis='both', labelsize=font_size)
+
+	for i in range(len(Y)):
+		Y[i] = np.asarray(Y[i], dtype=np.float16)
+		s_color, s_marker, s_line = plot_style(i)
+		ax.plot(s_coord, Y[i], color=s_color, marker=s_marker, linestyle=s_line, linewidth=1, label = s_lab+' ' +labels[i])
+
+	ax.grid(b=True, which='major', color='k', alpha=0.2, linewidth=0.5, linestyle='--')
+	ax.set_title(s_title)
+	ax.legend(loc='upper center', fancybox=True, shadow=False, framealpha=0.5, fontsize=font_size)
+
+	fig.savefig(imgdata, format='svg', transparent=True)
+	imgdata.seek(0)
+	#fig.savefig(s_img + '_fs.png', format='png', transparent=False)
+	del fig, ax
+	plt.close()
+	return  imgdata.getvalue()
+
+def return_trends_fs(imgdata, s_coord, Y, s_path, s_title, s_lab):
+	s_img = os.path.join(s_path, s_title)
+	font_size = 'small'
+	fig = plt.figure()
+	fig, ax = plt.subplots(figsize=(8,4), tight_layout=True)  # set size of svg by figsize.
+	y_label = s_lab + ' % dif'
+	ax.set_ylabel(y_label, fontsize=font_size)
+	ax.set_ylim(-1.5,1.5)
+	ax.set_yticks([-1.5, -1, -0.5, 0, 0.5, 1, 1.5], minor=False)
+	ax.tick_params(axis='both', labelsize=font_size)
+	labels = ['X', 'Y']
+
+	for i in range(len(Y)):
+		Y[i] = np.asarray(Y[i], dtype=np.float16)
+		s_color, s_marker, s_line = plot_style(i)
+		ax.plot(s_coord, Y[i], color=s_color, marker=s_marker, linestyle='-', linewidth=1, label = s_lab+' ' +labels[i])
+
+	ax.grid(b=True, which='major', color='k', alpha=0.2, linewidth=0.5, linestyle='--')
+	ax.set_title(s_title)
+	ax.legend(loc='upper center', fancybox=True, shadow=False, framealpha=0.5, fontsize=font_size)
+
+	fig.savefig(imgdata, format='svg', transparent=True)
+	imgdata.seek(0)
+	#fig.savefig(s_img + '_fs.png', format='png', transparent=False)
+	del fig, ax
+	plt.close()
 	return  imgdata.getvalue()

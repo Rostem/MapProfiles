@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+/* Style the buttons inside the tab */
+.tab button {
+	background-color: inherit;
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 14px 16px;
+	transition: 0.3s;
+	font-size: 17px;
+  }
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #fff;
+  border: 1px solid blue;
+	border-bottom: none;
+}
+
+/* Create an active/current tablink class */
+.tab button {
+  background-color: #fff;
+  border: 1px solid blue;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+}
+
+</style>
+
+{% if user.is_authenticated %}
+
+<br>
+<h2> <strong> trends for Machine ={{ machine }}, Energy = {{ energy }} </strong></h2>
+
+<div class="w3-container" style="width:90% height:90%">
+	<h4>
+		<div class="tab">
+			<button class="tablinks" onclick="openTab(event, 'OAR_X')" id="defaultOpen"> OAR X % difference</button>
+			<button class="tablinks" onclick="openTab(event, 'OAR_Y')"> OAR Y % difference</button>
+			<button class="tablinks" onclick="openTab(event, 'Flat')"> Flatness % Difference</button>
+			<button class="tablinks" onclick="openTab(event, 'Sym')"> Symmetry % Difference</button>
+		</div>
+
+	</h4>
+
+	<div id="OAR_X" class="tabcontent">
+		<div class= "w3-row-padding">
+			<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> {{trends_oar_x|safe }}	</svg>
+		</div>
+	</div>
+
+	<div id="OAR_Y" class="tabcontent">
+		<div class= "w3-row-padding">
+			<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> {{trends_oar_y|safe }}	</svg>
+		</div>
+	</div>
+
+	<div id="Flat" class="tabcontent">
+		<div class= "w3-row-padding">
+			<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> > {{ trends_flat|safe }} </svg>
+		</div>
+	</div>
+
+	<div id="Sym" class="tabcontent">
+		<div class= "w3-row-padding">
+			<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" preserveAspectRatio="xMidYMid meet"> > {{ trends_sym|safe }} </svg>
+		</div>
+	</div>
+
+
+</div>
+
+{% else %}
+	<h3 class="w3-red" style="width:50%"> Please login to proceed </h3>
+{% endif %}
+
+<br>
+<br>
+<script>
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+
+{% endblock %}

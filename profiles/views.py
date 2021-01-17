@@ -11,106 +11,17 @@ from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+# needed for file downloads:
+import pathlib
+from django.http import FileResponse
+from django.contrib import messages
+
 from .src import prof
 from .src import plots
 from .src import conf
-
-from profiles.models import Data, Machine, Date_meas, Energy, ConfigPath
-from profiles.forms import EnterParamsForm, EnterConfigPathForm
-from profiles.models import UploadConfig, UploadData
-from profiles.forms import UploadConfigForm, UploadDataForm
-
-class MachineListView(generic.ListView):    # is references in urls.py as path('scans/', views.ScanListView.as_view(),..)
-	model = Machine   # will look for template in ../scans/templates/Machine_list.html
-
-class Date_measListView(generic.ListView):    # is references in urls.py as path('scans/', views.ScanListView.as_view(),..)
-	model = Date_meas   # will look for template in ../scans/templates/Machine_list.html
-
-# https://simpleisbetterthancomplex.com/tutorial/2016/08/01/how-to-upload-files-with-django.html
-
-@login_required
-def index(request):
-	if request.method == 'POST':
-		form = UploadConfigForm(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
-			return HttpResponseRedirect(reverse('upload-data') )
-	else:
-		form = UploadConfigForm()
-	context = {
-		'form': form,
-		}
-	return render(request, 'index.html', context)
-
-def upload_data(request):
-	if request.method == 'POST':
-		form = UploadDataForm(request.POST, request.FILES)
-		files = request.FILES.getlist('data_files')
-		if form.is_valid():
-			for f in files:
-				file_instance = UploadData(data_files = f)
-				file_instance.save()
-			return HttpResponseRedirect(reverse('params') )
-	else:
-		form = UploadDataForm()
-	context = {
-		'form': form,
-		}
-	return render(request, 'upload_data.html', context)
-
-def load_config():
-	#if (len(ConfigPath.objects.all() ) == 0):	return False, None
-	#cp = get_object_or_404(ConfigPath)
-	#print('   load_config: current path: ', cp.config_path )
-	#if not cp.config_path: 	return False, None
-
-	config_file = os.path.join(settings.MEDIA_ROOT, 'config/config.dat')
-	print('   load_config: client chose this config:', config_file)
-	if not os.path.isfile(config_file):
-		print('   load_config: config file not found:', config_file)
-		return False, None
-	else:
-		print('   load_config: SUCCESS: Config file was found:', config_file)
-		print('   load_config: will read config paramters now')
-		return True, conf.ReadConfig(config_file)
-
-@login_required
-def params(request):
-	load_status, config = load_config()
-	if not load_status:
-		print ('   params:  config failed to load')
-		context = {
-			'title': 'Error',
-			'msg': 'Config failed to load - possibly wrong file name',
-			}
-		return render( request, 'message.html', context=context )
-	fill_models(config)
-	Data.objects.all().delete()
-	data = Data()
-	data.data_path = os.path.join(settings.MEDIA_ROOT, 'data')
-	print( f'   params: {data.data_path=}' )
-
-	if request.method == 'POST':
-		form = EnterParamsForm(request.POST)
-		if form.is_valid():
-			if not data.data_path: 	print( f'   params: WARNING: params: {data.data_path=}')
-			data.machine = form.cleaned_data['machine']
-			data.date_meas = form.cleaned_data['date_meas']
-			data.save()
-			return HttpResponseRedirect(reverse('plot-mpl') )
-
-	# if a GET (or any other method) we'll create a blank form
-	else:
-		form = EnterParamsForm()
-	print( f'   params: {data.data_path=}' )
-	print( f'   params: {data.machine=}' )
-	print( f'   params: {data.date_meas=}' )
-
-	context = {
-		'form': form,
-		'data': data,
-		}
-	return render(request, 'params.html', context)
+from profiles.models import UploadData, UploadBaselines, Config, UploadCSV, PlotTrends
+from profiles.forms import UploadDataForm, UploadBaselinesForm, ConfigForm, UploadCSVForm, PlotTrendsForm
+import csv
 
 def show_manual(request):
 	context = {
@@ -121,7 +32,7 @@ def show_manual(request):
 def show_about(request):
 	context = {
 		'title':  'About',
-		'msg' : 'This app is written in Python 3 and uses Django (python) web development kit',
+		'msg' : 'This app is written in Python 3.8 and uses Django 3.1 web development kit',
 		}
 	return render(request, 'message.html', context)
 
@@ -132,120 +43,336 @@ def show_contact(request):
 		}
 	return render(request, 'message.html', context)
 
-def reset_models(request):
+def reset_models():
 	print('   views.reset_models: resetting all models')
-	Date_meas.objects.all().delete()
-	Machine.objects.all().delete()
-	Energy.objects.all().delete()
-	ConfigPath.objects.all().delete()
-	Data.objects.all().delete()
-	UploadConfig.objects.all().delete()
 	UploadData.objects.all().delete()
-
-	context = {
-		'title': 'Warning',
-		'msg':  'All cash has been cleared. \nPlease re-Load Config.',
-		}
-	return render(request, 'message.html', context)
-
-def fill_models(config):
-	all_machines = Machine.objects.all()
-	all_dates = Date_meas.objects.all()
-	all_Energies = Energy.objects.all()
-	all_data = Data.objects.all()
-	all_CP = ConfigPath.objects.all()
-
-	print (f'\n   fill_models: before filling: \n')
-	print (f'   fill_models: got {len(all_machines) } Machines, config has {len(config.machine_list)} machines' )
-	print (f'   fill_models: got {len(all_Energies) } Energy, config has {len(config.energy_list)} energies' )
-	print (f'   fill_models: got {len(all_dates) } Dates_meas, config has {len(config.date_list)} dates')
-	print (f'   fill_models: got {len(all_data) } Data, should be 0')
-	print (f'   fill_models: got {len(all_CP) } ConfigPath, should be 1')
-
-	if ( len(all_machines)< len(config.machine_list) ):
-		for m in config.machine_list:
-			machine = Machine(name = m.strip())
-			machine.save()
-	if (len(all_dates)< len(config.date_list) ):
-		for d in config.date_list:
-			date_meas = Date_meas(name = d.strip())
-			date_meas.save()
-	if (len(all_Energies)< len(config.energy_list) ):
-		for e in config.energy_list:
-			en = Energy(name = e.strip())
-			en.save()
-
-	all_machines = Machine.objects.all()
-	all_dates = Date_meas.objects.all()
-	all_Energies = Energy.objects.all()
-
-	print (f'   fill_models: after filling: \n')
-	print (f'   fill_models: got {len(all_machines) } Machines, config has {len(config.machine_list)} machines' )
-	print (f'   fill_models: got {len(all_Energies) } Energy, config has {len(config.energy_list)} energies' )
-	print (f'   fill_models: got {len(all_dates) } Dates_meas, config has {len(config.date_list)} dates')
+	UploadBaselines.objects.all().delete()
+	Config.objects.all().delete()
 
 @login_required
-def plot_mpl(request):
-	load_status, config = load_config()
-	if not load_status:
-		print ('   plot_mpl:  config  failed to load')
-		context = {
-			'title': 'Error',
-			'msg': 'Config path cannot be found. Please run Load Config first.',
-			}
-		return render( request, 'message.html', context=context )
+def index(request):
+	reset_models()
+	if request.method == 'POST':
+		form = ConfigForm(request.POST)
+		if form.is_valid():
+			form.save()
+			return HttpResponseRedirect(reverse('upload-baselines') )
+	else:
+		form = ConfigForm()
+	context = {
+		'form': form,
+		}
+	return render(request, 'index.html', context)
 
-	data = get_object_or_404(Data)
-	print (f'   plot_mpl:  { data.data_path = }')
-	do, error_msg = prof.calc_profiles(data, config)
+def upload_baselines(request):
+	baselines_path = os.path.join(settings.MEDIA_ROOT, 'baselines')
+	del_status = prof.delete_files(baselines_path)
+	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	if os.path.isdir(res_path):
+		del_status = prof.delete_files(res_path)
+	else: os.mkdir(res_path)
+
+	if request.method == 'POST':
+		form = UploadBaselinesForm(request.POST, request.FILES)
+		files = request.FILES.getlist('baseline_files')
+		if form.is_valid():
+			for f in files:
+				file_instance = UploadBaselines(baseline_files = f)
+				file_instance.save()
+			return HttpResponseRedirect(reverse('upload-data') )
+	else:
+		form = UploadBaselinesForm()
+	context = {
+		'form': form,
+		}
+	return render(request, 'upload_baselines.html', context)
+
+def upload_data(request):
+	data_path = os.path.join(settings.MEDIA_ROOT, 'data')
+	del_status = prof.delete_files(data_path)
+
+	if request.method == 'POST':
+		form = UploadDataForm(request.POST, request.FILES)
+		files = request.FILES.getlist('data_files')
+		if form.is_valid():
+			for f in files:
+				file_instance = UploadData(data_files = f)
+				file_instance.save()
+			return HttpResponseRedirect(reverse('analyze') )
+	else:
+		form = UploadDataForm()
+	context = {
+		'form': form,
+		}
+	return render(request, 'upload_data.html', context)
+
+def analyze(request):
+	config_model = get_object_or_404(Config)
+	config = conf.GetConfig(config_model)
+
+	data_path = os.path.join(settings.MEDIA_ROOT, 'data')
+	baselines_path = os.path.join(settings.MEDIA_ROOT, 'baselines')
+	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	data_files = os.listdir(data_path)
+	baseline_files = os.listdir(baselines_path)
+	machine, date_meas = prof.get_date_machine(data_files)
+	_, baselines_date = prof.get_date_machine(baseline_files)
+	print(f'   analyze: guessing {machine=}, {date_meas=}' )
+	#context = {
+		#'file_list': zip(data_files, baseline_files),
+		#}
+	#return render(request, 'analyze.html', context)
+
+	data_dict = {
+		'data_path': data_path,
+		'baselines_path': baselines_path,
+		'res_path': res_path,
+		'machine': machine,
+		'date_meas': date_meas,
+		'baselines_date': baselines_date,
+		}
+
+	do, error_msg = prof.calc_profiles(data_dict, config)
 	if error_msg:
 		context = {
 			'title': 'Error',
 			'error_msg': error_msg,
-			'msg': f'\n\n Please check that: \
-				\n- The following path contains both your baseline and monthly mapcheck files: { os.path.join(data.data_path, str(data.machine)) } \
-				\n- and the baseline files only differs by the date from the monthly mapcheck file. \
-				\n- Data folders match machine names exactly, \
-				\n- Path to the config.dat file is correct, \
-				\n- Naming of mapcheck files is of correct format.',
+			'msg': f'\n Please check that: all files follow strict naming convention',
 			}
 		return render( request, 'message.html', context=context )
 
 	D, OAR_dif, FS_dif, oar_coord, data_fnames, base_fnames = do['D'], do['OAR_dif'], do['FS_dif'], do['oar_coord'], do['data_fnames'], do['base_fnames']
 
 	# generates plot data:
-	if (str(data.machine).strip() !=0):
-		imgdata = StringIO()
-		s_img =  str(data.machine) + str(data.date_meas)
-		graph_oar = plots.return_oar_graph(imgdata, OAR_dif, oar_coord, data.data_path, s_img)
+	imgdata = StringIO()
+	s_img =  machine + '-' + date_meas
+	graph_oar = plots.return_oar_graph(imgdata, OAR_dif, oar_coord, res_path, s_img)
 
-		imgdata = StringIO()
-		graph_fs = plots.return_fs_graph(imgdata, FS_dif, data.data_path, s_img)
+	imgdata = StringIO()
+	graph_fs = plots.return_fs_graph(imgdata, FS_dif, res_path, s_img)
 
-		imgdata = StringIO()
-		graph_prof = plots.return_prof_graph(imgdata, D, data.data_path, s_img)
+	imgdata = StringIO()
+	graph_prof = plots.return_prof_graph(imgdata, D, res_path, s_img)
+	imgdata.close()
+	print( config.tol_oar_lo, config.tol_oar_hi)
+	context = {
+		'graph_oar': graph_oar,
+		'graph_fs': graph_fs,
+		'graph_prof': graph_prof,
+		'tol_oar': {
+			'p1': config.tol_oar_lo,
+			'p2': config.tol_oar_hi,
+			'n1': -config.tol_oar_lo,
+			'n2': -config.tol_oar_hi,
+			},
+		'tol_fs' :{
+			'p1': config.tol_fs_lo,
+			'p2': config.tol_fs_hi,
+			'n1': -config.tol_fs_lo,
+			'n2': -config.tol_fs_hi,
+			},
+		'OAR_dif': OAR_dif,
+		'FS_dif' : FS_dif,
+		'oar_coord': oar_coord,
+		'data_fnames': data_fnames,
+		'base_fnames': base_fnames,
+		'data_dict': data_dict,
+		}
+	return render(request, 'analyze.html', context)
 
-		imgdata.close()
+def download_csv(request):
+	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	res_files = os.listdir(res_path)
+	#image_files =[]
+	for f in res_files:
+		if '.csv' in f: csv_file = f
+	print(f'   results: found {csv_file=}')
+	sf = csv_file
 
-		context = {
-			'graph_oar': graph_oar,
-			'graph_fs': graph_fs,
-			'graph_prof': graph_prof,
-			'data': data,
-			'config': config,
-			'OAR_dif': OAR_dif,
-			'FS_dif' : FS_dif,
-			'oar_coord': oar_coord,
-			'data_fnames': data_fnames,
-			'base_fnames': base_fnames,
-			}
-		return render(request, 'plot_mpl.html', context)
+	file_path = os.path.join(settings.MEDIA_ROOT, 'results', sf)
+	file_server = pathlib.Path(file_path)
+	if not file_server.exists():
+		messages.error(request, f'   results: {file_path=} not found.')
 	else:
-		print ('   views.plot_mpl:  loading data from config... This is a necessary step."')
-		context = {
-			'title': 'Warning',
-			'msg': 'loading data from config... This is a necessary step. \nSelect data again \
-					- you should have all your Energies and machines imported now into the form choices',
-			}
-		return render( request, 'message.html', context=context )
+		file_to_download = open(str(file_server), 'rb')
+		response = FileResponse(file_to_download, content_type = 'application/force-download')
+		response['Content-Disposition'] = 'attachment; filename=' + sf
+		return response
+	return redirect('download_file.html')
 
+def download_xls(request):
+	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	res_files = os.listdir(res_path)
+	#image_files =[]
+	for f in res_files:
+		if '.xls' in f: xls_file = f
+	print(f'   results: found {xls_file=}')
+	sf = xls_file
+
+	file_path = os.path.join(settings.MEDIA_ROOT, 'results', sf)
+	file_server = pathlib.Path(file_path)
+	if not file_server.exists():
+		messages.error(request, f'   results: {file_path=} not found.')
+	else:
+		file_to_download = open(str(file_server), 'rb')
+		response = FileResponse(file_to_download, content_type = 'application/force-download')
+		response['Content-Disposition'] = 'attachment; filename=' + sf
+		return response
+	return redirect('download_file.html')
+
+def download_images(request):
+	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	res_files = os.listdir(res_path)
+	image_files =[]
+	for f in res_files:
+		if '.png' in f:
+			image_files.append(f)
+			print(f'   results: found images: {f}')
+	sf = image_files[0]
+
+	file_path = os.path.join(settings.MEDIA_ROOT, 'results', sf)
+	file_server = pathlib.Path(file_path)
+	if not file_server.exists():
+		messages.error(request, f'   results: {file_path=} not found.')
+	else:
+		file_to_download = open(str(file_server), 'rb')
+		response = FileResponse(file_to_download, content_type = 'application/force-download')
+		response['Content-Disposition'] = 'attachment; filename=' + sf
+		return response
+	return redirect('download_file.html')
+
+#def results(request):
+	#res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	#res_files = os.listdir(res_path)
+	#image_files =[]
+	#for f in res_files:
+		#if '.csv' in f: csv_file = os.path.join(settings.MEDIA_ROOT, 'results', f)
+		#if '.xls' in f: xls_file = os.path.join(settings.MEDIA_ROOT, 'results', f)
+		#if '.png' in f: image_files.append(os.path.join(settings.MEDIA_ROOT, 'results', f) )
+	#print(f'   results: found {csv_file=}')
+	#print(f'   results: found {xls_file=}')
+	#print(f'   results: found {image_files=}')
+	#links = {
+		#'csv_file': csv_file,
+		#'xls_file':  xls_file,
+		#'image_files': image_files,
+		#}
+	#context = {
+		#'title': 'Download Results',
+		#'links': links,
+		#}
+	#return render( request, 'results.html', context=context )
+
+def upload_csv(request):
+	UploadCSV.objects.all().delete()
+	user_csv_path = os.path.join(settings.MEDIA_ROOT, 'user_csv')
+	del_status = prof.delete_files(user_csv_path)
+
+	if request.method == 'POST':
+		form = UploadCSVForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+			return HttpResponseRedirect(reverse('trends-form') )
+	else:
+		form = UploadCSVForm()
+	context = {
+		'form': form,
+		}
+	return render(request, 'upload_csv.html', context)
+
+def trends_form(request):
+	PlotTrends.objects.all().delete()
+
+	if request.method == 'POST':
+		form = PlotTrendsForm(request.POST)
+		if form.is_valid():
+			form.save()
+			return HttpResponseRedirect(reverse('trends') )
+	else:
+		form = PlotTrendsForm()
+	context = {
+		'form': form,
+		}
+	return render(request, 'trends_form.html', context)
+
+def trends(request):
+	user_csv_path = os.path.join(settings.MEDIA_ROOT, 'user_csv', )
+	csv_files = os.listdir(user_csv_path)
+	for f in csv_files:
+		if '.csv' in f: csv_file =  f
+	csv_path = os.path.join(user_csv_path, csv_file)
+
+	config_model = get_object_or_404(Config)
+	trends_model = get_object_or_404(PlotTrends)
+	energy = trends_model.energy.upper().zfill(5)
+	machine = csv_file[:-4]
+
+	oar_x1, oar_x2, oar_x3, oar_x4 = [],[],[],[]
+	oar_y1, oar_y2, oar_y3, oar_y4 = [],[],[],[]
+	flat_x, flat_y = [],[]
+	sym_x, sym_y = [],[]
+	dates=[]
+	#print (f'   treds: {csv_path=}, {energy=}, {machine=} ')
+
+	with open(csv_path, newline='') as f_csv:
+		reader = csv.DictReader(f_csv, dialect='excel')
+		for row in reader:
+			if  energy in str(row['energy']):
+				dates.append( row['date'] )
+				oar_x1.append( row['%dif OAR_X(-6.0)'])
+				oar_x2.append( row['%dif OAR_X(-3.0)'])
+				oar_x3.append( row['%dif OAR_X(3.0)'])
+				oar_x4.append( row['%dif OAR_X(6.0)'])
+				oar_y1.append( row['%dif OAR_Y(-6.0)'])
+				oar_y2.append( row['%dif OAR_Y(-3.0)'])
+				oar_y3.append( row['%dif OAR_Y(3.0)'])
+				oar_y4.append( row['%dif OAR_Y(6.0)'])
+				flat_x.append( row['Flat_X_dif'])
+				flat_y.append( row['Flat_Y_dif'])
+				sym_x.append( row['Sym_X_dif'])
+				sym_y.append( row['Sym_Y_dif'])
+
+	# generates plot data:
+	s_img =  machine + '-' + energy
+	eval_x = [config_model.eval_x1, config_model.eval_x2]
+
+	imgdata = StringIO()
+	oar_x= [oar_x1, oar_x2, oar_x3, oar_x4]
+	trends_oar_x = plots.return_trends_oar(imgdata, dates, oar_x, user_csv_path, s_img, 'X ', 'OAR ', eval_x)
+
+	imgdata = StringIO()
+	oar_y= [oar_y1, oar_y2, oar_y3, oar_y4]
+	trends_oar_y= plots.return_trends_oar(imgdata, dates, oar_y, user_csv_path, s_img, 'Y ', 'OAR ', eval_x)
+
+	imgdata = StringIO()
+	flat = [flat_x, flat_y]
+	trends_flat= plots.return_trends_fs(imgdata, dates, flat, user_csv_path, s_img, 'Flatness')
+
+	imgdata = StringIO()
+	sym = [sym_x, sym_y]
+	trends_sym = plots.return_trends_fs(imgdata, dates, sym, user_csv_path, s_img, 'Symmetry')
+
+	imgdata.close()
+
+	context = {
+		'trends_oar_x': trends_oar_x,
+		'trends_oar_y': trends_oar_y,
+		'trends_flat': trends_flat,
+		'trends_sym': trends_sym,
+		'energy': energy,
+		'machine': machine,
+		}
+	return render( request, 'trends.html', context=context )
+
+
+#messages.debug(request, '%s SQL statements were executed.' % count)
+#messages.info(request, 'Three credits remain in your account.')
+#messages.success(request, 'Profile details updated.')
+#messages.warning(request, 'Your account expires in three days.')
+#messages.error(request, 'Document deleted.')
+
+# with open('path/test.pdf', 'rb') as pdf:
+	# response = HttpResponse(pdf.read())
+	# reponse['content_type'] = 'application/pdf'
+	# response['Content-Disposition'] = 'attachment;filename=file.pdf'
+	# return response

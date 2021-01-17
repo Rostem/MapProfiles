@@ -9,6 +9,38 @@ from .import data_filters as dfl
 from .import mapcheck as MC
 import pandas as pd
 
+def get_date_machine(files):
+	m_last, d_last = None, None
+	#print(f'   get_date_machine: {files=}')
+	for i, f in enumerate(files):
+		if not '.txt' in f: break
+		dat = f.split('-')
+		m = dat[0]
+		d = dat[1] + '-' + dat[2]
+		if i>0:
+			if m != m_last or d != d_last:
+				print(f'   get_date_machine: {m=} ? {m_last=},    {d=} ? {d_last=}' )
+			#else:
+				#print(f'   get_date_machine: {m} = {m_last},    {d} = {d_last}' )
+		m_last =m
+		d_last = d
+	return m, d
+
+def delete_files(path):
+	try:
+		files = os.listdir(path)
+		#print(f'   prof.delete_files: {files=}')
+	except FileNotFoundError:
+		print(f'   prof.delete_files: {path=} does not exist')
+		return False
+	except:
+		print(f'   prof.delete_files: something wrong with {path=}')
+		return False
+	for f in files:
+		f = os.path.join(path, f)
+		os.remove(f)
+	return True
+
 def rename_files(path):
 	try:
 		files = os.listdir(path)
@@ -39,7 +71,7 @@ def rename_files(path):
 				oldf = os.path.join(path, f)
 				newf = os.path.join(path, newname)
 				os.rename(oldf, newf)
-				print (f'        {f} -> {newname}')
+				print (f'   {f} -> {newname}')
 			#else:
 			#	print( f'     skipping: {f} = {newname}')
 	return True
@@ -102,39 +134,47 @@ def check_add_s_metrics(X, tol, s):
 	return s
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def calc_profiles(data, config):
-	data_path = data.data_path
-	s_machine = str(data.machine)
-	s_date = str(data.date_meas)
-	s_match = '*' + s_machine + '*' + s_date + '*.txt'
-	#s_files_path = os.path.join(data_path,  s_machine)
-	s_files_path = data_path
-	print ('   calc_profiles: s_files_path = ', s_files_path)
+def calc_profiles(data_dict, config):
+	data_path = data_dict['data_path']
+	baselines_path = data_dict['baselines_path']
+	res_path = data_dict['res_path']
+	s_machine = data_dict['machine']
+	s_date = data_dict['date_meas']
+	s_baselines_date = data_dict['baselines_date']
+	s_data_match = '*' + s_machine + '*' + s_date + '*.txt'
+	s_bl_match = '*' + s_machine + '*' + s_baselines_date + '*.txt'
 
-	if not rename_files(s_files_path):
+	if not rename_files(data_path):
 		error_msg = f'   calc_profiles: wrong data path'
 		print(error_msg)
 		return None, error_msg
 
-	print(f'   calc_profiles: Will look for files matching {s_machine} and {s_date} in {s_files_path} ' )
-	s_files = find_matches(s_files_path, s_match)
+	if not rename_files(baselines_path):
+		error_msg = f'   calc_profiles: wrong baselines path'
+		print(error_msg)
+		return None, error_msg
 
-	if not s_files:
-		error_msg = '   calc_profiles: data files were not found'
+	#print(f'   calc_profiles: Will look for files matching {s_machine} and {s_date} in {data_path} ' )
+	s_data_files = find_matches(data_path, s_data_match)
+	s_baseline_files = find_matches(baselines_path, s_bl_match)
+
+	if not s_data_files or not s_baseline_files:
+		error_msg = '   calc_profiles: data or baselines files were not found'
 		print (error_msg)
 		return None, error_msg
 	else:
-		print ('   calc_profiles: SUCCESS: Data files found:')
+		print ('   calc_profiles: SUCCESS: files found')
 
-	s_col_names, oar_coord, col_names = get_fieldnames(config.X_eval)
-	csv_path = os.path.join(data_path, s_machine + '.csv')
+	eval_x = [config.eval_x1, config.eval_x2]
+	s_col_names, oar_coord, col_names = get_fieldnames(eval_x)
+	csv_path = os.path.join(res_path, s_machine + '.csv')
 	if os.path.isfile(csv_path):
 		f_scv= open(csv_path,  'a' )
 	else:
 		f_scv= open(csv_path,  'w' )
 		f_scv.write(s_col_names)
 
-	xls_path = os.path.join(data_path, s_machine + '.xlsx')
+	xls_path = os.path.join(res_path, s_machine + '.xlsx')
 	if os.path.isfile(xls_path):
 		writer = pd.ExcelWriter(xls_path, mode='a', engine='openpyxl')
 	else:
@@ -158,7 +198,7 @@ def calc_profiles(data, config):
 	base_fnames = {}
 
 	i_row = 0
-	for s_f in s_files:
+	for s_f in s_data_files:
 		if not os.path.isfile(s_f):
 			error_msg = f'   calc_profiles: could not find {s_f =}'
 			print(error_msg)
@@ -166,7 +206,7 @@ def calc_profiles(data, config):
 		else:
 			Map = MC.Read_mpck(s_f, config)
 
-		s_base_file = os.path.join(data_path, Map.machine + '-' + config.baseline_date + '-' + Map.energy + '.txt')
+		s_base_file = os.path.join(baselines_path, Map.machine + '-' + s_baselines_date  + '-' + Map.energy + '.txt')
 		if not os.path.isfile(s_base_file):
 			error_msg = f'   calc_profiles: could not find {s_base_file =}'
 			print(error_msg)
@@ -174,7 +214,7 @@ def calc_profiles(data, config):
 		else:
 			Map_base = MC.Read_mpck(s_base_file, config)
 
-		print('{:20s}, baseline = {:20s}'.format(Map.sf, Map_base.sf) )
+		print('   {:20s}, baseline = {:20s}'.format(Map.sf, Map_base.sf) )
 		data_fnames[Map.energy] = Map.sf
 		base_fnames[Map.energy] = Map_base.sf
 
@@ -207,8 +247,8 @@ def calc_profiles(data, config):
 		OAR_dif['X'][Map.energy] = OAR_dif_x
 		OAR_dif['Y'][Map.energy] = OAR_dif_y
 
-		s_metrics = check_add_s_metrics(OAR_dif_x, config.tol_oar['p1'], s_metrics)
-		s_metrics = check_add_s_metrics(OAR_dif_y, config.tol_oar['p1'], s_metrics)
+		s_metrics = check_add_s_metrics(OAR_dif_x, config.tol_oar_lo, s_metrics)
+		s_metrics = check_add_s_metrics(OAR_dif_y, config.tol_oar_lo, s_metrics)
 		s_metrics += ' \n '
 		f_scv.write(s_metrics)
 

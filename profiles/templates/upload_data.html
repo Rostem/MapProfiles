@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
+<p>
+<h2>Upload monthly mapcheck files:</h2>
+<p>
 
 <h4>
 	<div class="w3-container" style="width:50vw" >
 		<form action="" method="post"  enctype="multipart/form-data"  class="w3-light-grey w3-card-4">
-			<label class="w3-text-green">
+			<label class="w3-text-blue">
 			{% csrf_token %}
 				<table class="w3-table-all">
 				{{ form.as_table }}
 				</table>
 
-				<input type="submit" value="Apply" class="w3-button w3-blue">
+				<input type="submit" value="Load Monthly and Process" class="w3-button w3-green">
 			</label>
 		</form>
-		This may take a couple of minutes...
+		Press Load Baselones after a number replaces "No File chosen". Then wait 10-15 seconds for the upload.
 	</div>
 <br>
 </h4>

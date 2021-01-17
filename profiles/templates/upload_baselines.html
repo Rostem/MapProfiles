@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-
 <p>
-<h2>Confirm or customize settings (carefully):</h2>
+<h2>Upload baseline mapcheck files:</h2>
 <p>
 <h4>
 	<div class="w3-container" style="width:50vw" >
@@ -12,12 +11,11 @@
 				<table class="w3-table-all">
 				{{ form.as_table }}
 				</table>
-
-				<input type="submit" value="Looks good" class="w3-button w3-blue">
+				<input type="submit" value="Load Baselines" class="w3-button w3-amber">
 			</label>
 		</form>
+		Press Load Baselones after a number replaces "No File chosen". Then wait 10-15 seconds for the upload.
 	</div>
 <br>
 </h4>
-
 {% endblock %}

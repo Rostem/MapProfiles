@@ -3,14 +3,17 @@ from . import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
+	path('upload_baselines', views.upload_baselines, name='upload-baselines'),
 	path('upload_data', views.upload_data, name='upload-data'),
-	path('params', views.params, name='params'),
-	path('plot_mpl', views.plot_mpl, name='plot-mpl'),
-	path('machines/', views.MachineListView.as_view(), name='machine-list'),
-	path('date_meas/', views.Date_measListView.as_view(), name='date-meas-list'),
-	path('success', views.plot_mpl, name='success'),
+	path('analyze', views.analyze, name='analyze'),
+	path('download_csv', views.download_csv, name='download-csv'),
+	path('download_xls', views.download_xls, name='download-xls'),
+	path('download_images', views.download_images, name='download-images'),
+	path('upload_csv', views.upload_csv, name='upload-csv'),
+	path('trends_form', views.trends_form, name='trends-form'),
+	path('trends', views.trends, name='trends'),
 	path('contact', views.show_contact, name='contact'),
 	path('manual', views.show_manual, name='manual'),
 	path('about', views.show_about, name='about'),
-	path('reset_data', views.reset_models, name='reset-data'),
+	#path('results/', views.results, name='results'),
 ]

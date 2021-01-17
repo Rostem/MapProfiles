@@ -11,11 +11,11 @@ def calc_prof_metrics(u, du, config):
 		u  - coordinates of points
 		du - doses at these points
 	"""
-	X_eval, np_eval, flat_def, sym_def = config.X_eval, config.n_eval_sm, config.flat_def, config.sym_def
+	eval_x1, eval_x2, np_eval, flat_def, sym_def = config.eval_x1, config.eval_x2, config.n_eval_sm, config.flat_def, config.sym_def
 
 	ic = len(u) // 2
-	n3 = val_to_ind(u, X_eval[0])
-	n4 = val_to_ind(u, X_eval[1])
+	n3 = val_to_ind(u, eval_x1)
+	n4 = val_to_ind(u, eval_x2)
 	n1 = len(u) - n4 - 1
 	n2 = len(u) - n3 - 1
 	d_cax = du[ic]
@@ -44,20 +44,20 @@ def calc_prof_metrics(u, du, config):
 	d_eval_points = du[ic - np_eval: ic + np_eval + 1]   # use a central region for flatness
 
 	error_fs = False
-	
+
 	flat_maxmin = round( 100 * ( d_eval_points.max() - d_eval_points.min() ) / ( d_eval_points.max() + d_eval_points.min() ), 2)
 	flat_IEC= round( 100 * (d_eval_points.max() /  d_eval_points.min()-1) , 2) # IEC 976 1989
-	
-	if 'iec' in flat_def.lower(): flat = flat_IEC 
+
+	if 'iec' in flat_def.lower(): flat = flat_IEC
 	else:  flat = flat_maxmin
-	
-	sym_mean = round( 100 * (D_left.mean() - D_right.mean()) / (D_left.mean() + D_right.mean()) , 2) 
+
+	sym_mean = round( 100 * (D_left.mean() - D_right.mean()) / (D_left.mean() + D_right.mean()) , 2)
 	sym_max = round( 100 * (d_left_ind_maxdif - d_right_ind_maxdif) / (d_left_ind_maxdif + d_right_ind_maxdif) , 2)
 	sym_IEC = round( 100 * (max( [LR_max, RL_max] )-1) , 2)  #  IEC 9761989
-	
+
 	if 'max' in sym_def.lower(): sym = sym_max
 	elif 'iec' in sym_def.lower(): sym = sym_IEC
 	else: sym = sym_mean
 
-	
+
 	return flat, sym, OAR

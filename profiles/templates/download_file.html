@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2> {{title}} </h2>
+<p>
+<div w3-container style="width:90%">
+<h4>
+
+<ul>
+	<li> <a href="{{ MEDIA_ROOT }}/results/{{ file }}"> {{ file }}</a>
+</ul>
+
+</h4>
+</div>
+
+{% endblock %}

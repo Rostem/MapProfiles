@@ -7,36 +7,52 @@
  {% load static %} <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
 <style>
 #grad-nav {
-  height: 50px;
   background: url("/static/images/light-abstract-1.jpeg");
-  color: black;
-  border-bottom: 4px solid gray;
+  border-bottom: 2px solid gray;
 }
-#grad-side {
-  height: 50px;
-  border-bottom: 4px solid gray;
+#menu-gray {
+  border-bottom: 2px solid gray;
+  border-right: 1px solid gray;
 }
-#grad-blue {
-  height: 50px;
-  border-bottom: 4px solid blue;
+#menu-blue {
+  border-bottom: 2px solid gray;
+  border-right: 1px solid gray;
 }
-#grad-green {
-  height: 50px;
-  border-bottom: 4px solid green;
+#menu-green {
+  border-bottom: 2px solid gray;
+  border-right: 1px solid gray;
 }
-#grad-red {
-  height: 50px;
-  border-bottom: 4px solid red;
+#menu-coral {
+  border-bottom: 2px solid gray;
+  border-right: 1px solid gray;
 }
+#menu-orange {
+  border-bottom: 2px solid gray;
+  border-right: 1px solid gray;
+}
+
+h2 {
+font-size: 1.5em;
+}
+
+h3 {
+font-size: 1.25em;
+}
+
+h4 {
+font-size: 1em;
+}
+
+
 </style>
 </head>
 
 <body>
  <!--  {% load static %} <img src="{% static 'images/brushed_metal.png' %}" alt=" my image here" align="center" style= "width: 100vw; height: 5vw ;">-->
 
-<h4>
-	<div id="grad-nav" class="w3-bar">
-		<li class="w3-bar-item" style="color: lightgray">Beam QA</li>
+<h2>
+	<div id="grad-nav" class="w3-bar w3-card-4">
+		<li class="w3-bar-item" style="color: gray">Map QA</li>
 		<div style="float:right" class="w3-dropdown-hover">
 			<button class="w3-button">Documentation</button>
 			<div class="w3-dropdown-content w3-bar-block w3-card-4">
@@ -53,30 +69,33 @@
 		{% endif %}
 
 		{% if user.is_authenticated %}
-			<li style="float:right" class="w3-bar-item">Hello <strong> {{ user.get_short_name }} </strong>  </li>
+			<li style="float:right" class="w3-bar-item">Hello <strong> {{ user.get_short_name}}/{{user.username}} </strong>  </li>
 		{% endif %}
 	</div>
-</h4>
+</h2>
 {% block title %}
-    <title> Beam QA</title>
+    <title> Map QA</title>
 {% endblock %}
 
 
 {% block sidebar %}
 <h4>
-<div class="w3-sidebar w3-bar-block" style="width:13%">
+<div class="w3-sidebar w3-bar-block" style="width:12%">
 	{% if user.is_authenticated %}
-		<a href="{% url 'index' %}"  id="grad-blue" class="w3-bar-item w3-button"> Prepare</a>
-		<a href="{% url 'params' %}"  id="grad-green" class="w3-bar-item w3-button"> Analyze</a>
-		<a href="{% url 'machine-list' %}"   id="grad-side" class="w3-bar-item w3-button "> List Machines</a>
-		<a href="{% url 'date-meas-list' %}"   id="grad-side" class="w3-bar-item w3-button"> List Dates</a>
-		<a href="{% url 'reset-data' %}"   id="grad-red" class="w3-bar-item w3-button ">Reset all data</a>
+		<a href="{% url 'index' %}"  id="menu-coral" class="w3-bar-item w3-button w3-blue-gray"> Load Config</a>
+		<a href="{% url 'upload-baselines' %}"  id="menu-orange" class="w3-bar-item w3-button w3-amber"> Load Baselines</a>
+		<a href="{% url 'upload-data' %}"  id="menu-green" class="w3-bar-item w3-button w3-green"> Load Monthly and Process</a>
+		<a href="{% url 'download-csv' %}"  id="menu-blue" class="w3-bar-item w3-button w3-blue"> Save CSV</a>
+		<a href="{% url 'download-xls' %}"  id="menu-blue" class="w3-bar-item w3-button w3-blue"> Save XLSx</a>
+		<a href="{% url 'download-images' %}"  id="menu-blue" class="w3-bar-item w3-button w3-blue"> Save Images</a>
+		<a href="{% url 'upload-csv' %}"  id="menu-blue" class="w3-bar-item w3-button w3-indigo"> Upload CSV</a>
+		<a href="{% url 'trends-form' %}"  id="menu-blue" class="w3-bar-item w3-button w3-card-4 w3-indigo"> Plot Trends</a>
 	{% endif %}
 </div>
 </h4>
 {% endblock %}
 
-<div style="margin-left:14%">
+<div style="margin-left:13%">
 {% block content %}
 {% endblock %}
 </div>

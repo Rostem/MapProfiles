@@ -1,42 +1,16 @@
-class ReadConfig:
-	def __init__(self, s_fin):
-		fin = open(s_fin, 'r')
-		lines = fin.readlines()
-		for line in lines:
-			if 'energy_list' in line: 
-				self.energy_list = line.split(',')[1:]
-				for m in self.energy_list: m = m.lower()
-			if 'machine_list' in line: 
-				self.machine_list = line.split(',')[1:]
-				for m in self.machine_list: m = m.lower()
-			if 'date_list' in line: self.date_list = line.split(',')[1:]
-			if 'baseline_date' in line: self.baseline_date = line.split(',')[1].strip()
-			if 'data_path' in line: self.data_path = line.split(',')[1].strip()
-			if 'field_size' in line: self.fs = float( line.split(',')[1].strip() )
-			if 'eval_range' in line: self.eval_range = float( line.split(',')[1].strip() )
-			if 'eval_coordinates' in line: self.X_eval = [ float(line.split(',')[1]), float(line.split(',')[2])  ]
-			if 'detector_spacing' in line: self.det_spacing_cm = float( line.split(',')[1].strip() )
-			if 'tolerance_oar' in line:
-				dat = line.split(',')[1:]
-				tol =  [ float(v) for v in dat]
-				self.tol_oar = { 'p1': tol[0], 'n1': -tol[0],
-								'p2': tol[1], 'n2': -tol[1],
-								}
-			if 'tolerance_fs' in line:
-				dat = line.split(',')[1:]
-				tol =  [ float(v) for v in dat]
-				self.tol_fs = { 'p1': tol[0], 'n1': -tol[0],
-								'p2': tol[1], 'n2': -tol[1],
-								}
-			if 'flat_def' in line: self.flat_def =  line.split(',')[1].strip()
-			if 'sym_def' in line: self.sym_def =  line.split(',')[1].strip()
-			if 'win_width' in line: self.win_width = int( line.split(',')[1].strip() )
-			if 'win_height' in line: self.win_height = int( line.split(',')[1].strip() )
-			if 'win_font_size' in line: self.font_size = line.split(',')[1].strip()
-			if 'win_dpi' in line: self.dpi = int( line.split(',')[1].strip() )
-			if 'win_marker_size' in line: self.marker_size = int( line.split(',')[1].strip() )
-			if 'win_line_width' in line: self.line_w = int( line.split(',')[1].strip() )
-		fin.close()
+class GetConfig:
+	def __init__(self, config_model):
+		self.fs = float(config_model.field_size)
+		self.eval_range = float(config_model.eval_range)
+		self.eval_x1 = float(config_model.eval_x1)
+		self.eval_x2 = float(config_model.eval_x2)
+		self.det_spacing_cm = 0.5
+		self.tol_oar_lo = float(config_model.tol_oar_lo)
+		self.tol_oar_hi = float(config_model.tol_oar_hi)
+		self.tol_fs_lo = float(config_model.tol_fs_lo)
+		self.tol_fs_hi = float(config_model.tol_fs_hi)
+		self.flat_def =  config_model.flat_def
+		self.sym_def =  config_model.sym_def
 		self.calc_params()
 
 	def calc_params(self):

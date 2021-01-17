@@ -25,10 +25,17 @@
 /* Create an active/current tablink class */
 .tab button.active {
   background-color: #fff;
-  border: 5px solid red;
-  border-top: none;
-  border-left: none;
-  border-right: none;
+  border: 1px solid blue;
+	border-bottom: none;
+}
+
+/* Create an active/current tablink class */
+.tab button {
+  background-color: #fff;
+  border: 1px solid blue;
+	border-top: none;
+	border-left: none;
+	border-right: none;
 }
 
 /* Style the tab content */
@@ -42,7 +49,7 @@
 {% if user.is_authenticated %}
 
 <br>
-<h2> <strong> Profile analysis for {{ data.machine }}-{{ data.date_meas }} </strong></h2>
+<h2> <strong> Profile analysis for {{ data_dict.machine }}-{{ data_dict.date_meas }} </strong></h2>
 
 <div class="w3-container" style="width:90% height:90%">
 	<h4>
@@ -104,7 +111,7 @@
 		<br>
 		<div class="button button_r12">
 			<div class="w3-center w3-card-4">
-			OAR % dif tolerances: warning: >{{ config.tol_oar.p1 }}, fail: >{{ config.tol_oar.p2 }}. (Read from config)
+			OAR % dif tolerances: warning: >{{ tol_oar.p1 }}, fail: >{{ tol_oar.p2 }}. (Read from config)
 			</div>
 		</div>
 		<br>
@@ -129,9 +136,9 @@
 						<td>{{e}}</td>
 						{% for v in values %}
 						<td>
-							{% if v > config.tol_oar.p2 or v < config.tol_oar.n2 %}
+							{% if v > tol_oar.p2 or v < tol_oar.n2 %}
 								<div class="w3-red"> <strong> {{v}} </strong> </div>
-							{% elif v > config.tol_oar.p1 or v < config.tol_oar.n1 %}
+							{% elif v > tol_oar.p1 or v < tol_oar.n1 %}
 								<div class="w3-amber"> <strong> {{v}} </strong> </div>
 							{% else %}
 								{{v}}
@@ -160,9 +167,9 @@
 						<td>{{e}}</td>
 						{% for v in values %}
 						<td>
-							{% if v > config.tol_oar.p2 or v < config.tol_oar.n2 %}
+							{% if v > tol_oar.p2 or v < tol_oar.n2 %}
 								<div class="w3-red"> <strong> {{v}} </strong> </div>
-							{% elif v > config.tol_oar.p1 or v < config.tol_oar.n1 %}
+							{% elif v > tol_oar.p1 or v < tol_oar.n1 %}
 								<div class="w3-amber"> <strong> {{v}} </strong> </div>
 							{% else %}
 								{{v}}
@@ -184,7 +191,7 @@
 		<br>
 		<div class="button button_r12">
 			<div class="w3-center w3-card-4">
-			F & S % dif tolerances: warning: >{{ config.tol_fs.p1 }}, fail: >{{ config.tol_fs.p2 }}. (Read from config)
+			F & S % dif tolerances: warning: >{{ tol_fs.p1 }}, fail: >{{ tol_fs.p2 }}. (Read from config)
 			</div>
 		</div>
 		<br>
@@ -208,9 +215,9 @@
 						<td>{{e}}</td>
 						{% for v in values %}
 						<td>
-							{% if v > config.tol_fs.p2 or v < config.tol_fs.n2 %}
+							{% if v > tol_fs.p2 or v < tol_fs.n2 %}
 								<div class="w3-red"> <strong> {{v}} </strong> </div>
-							{% elif v > config.tol_fs.p1 or v < config.tol_fs.n1 %}
+							{% elif v > tol_fs.p1 or v < tol_fs.n1 %}
 								<div class="w3-amber"> <strong> {{v}} </strong> </div>
 							{% else %}
 								{{v}}
@@ -239,9 +246,9 @@
 						<td>{{e}}</td>
 						{% for v in values %}
 						<td>
-							{% if v > config.tol_fs.p2 or v < config.tol_fs.n2 %}
+							{% if v > tol_fs.p2 or v < tol_fs.n2 %}
 								<div class="w3-red"> <strong> {{v}} </strong> </div>
-							{% elif v > config.tol_fs.p1 or v < config.tol_fs.n1 %}
+							{% elif v > tol_fs.p1 or v < tol_fs.n1 %}
 								<div class="w3-amber"> <strong> {{v}} </strong> </div>
 							{% else %}
 								{{v}}

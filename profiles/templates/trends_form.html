@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-
 <p>
-<h2>Confirm or customize settings (carefully):</h2>
+<h2>
+Trends will be shown for the selected energy and for the available data in the scv file.
 <p>
 <h4>
 	<div class="w3-container" style="width:50vw" >
@@ -13,11 +13,12 @@
 				{{ form.as_table }}
 				</table>
 
-				<input type="submit" value="Looks good" class="w3-button w3-blue">
+				<input type="submit" value="Select energy and Run Trends" class="w3-button w3-blue-gray">
 			</label>
 		</form>
 	</div>
 <br>
+To plot more dates - please run more monthly data using Load Monthly button:</h2>
 </h4>
 
 {% endblock %}
