@@ -67,14 +67,16 @@ class Config(models.Model):
 
 class UploadBaselines(models.Model):
 	baseline_files = models.FileField(upload_to='baselines')
-	#uploaded_at = models.DateTimeField(auto_now_add=True)
+	uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class UploadData(models.Model):
 	data_files = models.FileField(upload_to='data')
+	uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class UploadCSV(models.Model):
 	user_csv_file = models.FileField(upload_to='user_csv')
 	plot_energy = models.CharField(max_length=5)
+	uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class PlotTrends(models.Model):
 	energy = models.CharField(max_length=5)
