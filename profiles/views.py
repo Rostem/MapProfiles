@@ -68,6 +68,11 @@ def upload_baselines(request):
 	baselines_path = os.path.join(settings.MEDIA_ROOT, 'baselines')
 	del_status = prof.delete_files(baselines_path)
 
+	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
+	if os.path.isdir(res_path):
+		del_status = prof.delete_files(res_path)
+	else: os.mkdir(res_path)
+
 	if request.method == 'POST':
 		form = UploadBaselinesForm(request.POST, request.FILES)
 		files = request.FILES.getlist('baseline_files')
@@ -109,9 +114,6 @@ def analyze(request):
 	data_path = os.path.join(settings.MEDIA_ROOT, 'data')
 	baselines_path = os.path.join(settings.MEDIA_ROOT, 'baselines')
 	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
-	if os.path.isdir(res_path):
-		del_status = prof.delete_files(res_path)
-	else: os.mkdir(res_path)
 
 	data_files = os.listdir(data_path)
 	baseline_files = os.listdir(baselines_path)
