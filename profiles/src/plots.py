@@ -56,7 +56,7 @@ def	return_prof_graph(imgdata, D, s_path, s_title):
 
 	for axis in axes:
 		axis.set_title(s_title)
-		axis.legend(loc='lower center', fancybox=True, shadow=True, framealpha=0.5, fontsize=font_size)
+		axis.legend(loc='lower right', fancybox=True, shadow=False, framealpha=0.5, fontsize='x-small')
 	plt.tight_layout()
 
 	fig.savefig(imgdata, format='svg', transparent=True)
@@ -105,7 +105,7 @@ def return_oar_graph(imgdata, OAR_dif, oar_coord, s_path, s_title):
 
 	for axis in axes:
 		axis.set_title(s_title)
-		axis.legend(loc='upper center', fancybox=True, shadow=True, framealpha=0.5, fontsize=font_size)
+		axis.legend(loc='upper center', fancybox=True, shadow=False, framealpha=0.5, fontsize=font_size)
 	plt.tight_layout()
 
 	fig.savefig(imgdata, format='svg', transparent=True)
@@ -155,7 +155,7 @@ def return_fs_graph(imgdata, FS,  s_path, s_title):
 
 	for axis in axes:
 		axis.set_title(s_title)
-		axis.legend(loc='upper center', fancybox=True, shadow=True, framealpha=0.5, fontsize=font_size)
+		axis.legend(loc='upper center', fancybox=True, shadow=False, framealpha=0.5, fontsize=font_size)
 
 	plt.tight_layout()
 	fig.savefig(imgdata, format='svg', transparent=True)

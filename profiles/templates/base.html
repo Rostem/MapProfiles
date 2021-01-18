@@ -12,23 +12,23 @@
 }
 #menu-gray {
   border-bottom: 2px solid gray;
-  border-right: 1px solid gray;
+  border-right: 4px solid gray;
 }
-#menu-blue {
+#menu-plot {
   border-bottom: 2px solid gray;
-  border-right: 1px solid gray;
+  border-right: 4px solid red;
 }
-#menu-green {
+#menu-load1 {
   border-bottom: 2px solid gray;
-  border-right: 1px solid gray;
+  border-right: 4px solid orange;
 }
-#menu-coral {
+#menu-load2 {
   border-bottom: 2px solid gray;
-  border-right: 1px solid gray;
+  border-right: 4px solid green;
 }
-#menu-orange {
+#menu-save {
   border-bottom: 2px solid gray;
-  border-right: 1px solid gray;
+  border-right: 4px solid blue;
 }
 
 h2 {
@@ -82,14 +82,14 @@ font-size: 1em;
 <h4>
 <div class="w3-sidebar w3-bar-block" style="width:12%">
 	{% if user.is_authenticated %}
-		<a href="{% url 'index' %}"  id="menu-coral" class="w3-bar-item w3-button w3-blue-gray"> Load Config</a>
-		<a href="{% url 'upload-baselines' %}"  id="menu-orange" class="w3-bar-item w3-button w3-amber"> Load Baselines</a>
-		<a href="{% url 'upload-data' %}"  id="menu-green" class="w3-bar-item w3-button w3-green"> Load Monthly and Process</a>
-		<a href="{% url 'download-csv' %}"  id="menu-blue" class="w3-bar-item w3-button w3-blue"> Save CSV</a>
-		<a href="{% url 'download-xls' %}"  id="menu-blue" class="w3-bar-item w3-button w3-blue"> Save XLSx</a>
-		<a href="{% url 'download-images' %}"  id="menu-blue" class="w3-bar-item w3-button w3-blue"> Save Images</a>
-		<a href="{% url 'upload-csv' %}"  id="menu-blue" class="w3-bar-item w3-button w3-indigo"> Upload CSV</a>
-		<a href="{% url 'trends-form' %}"  id="menu-blue" class="w3-bar-item w3-button w3-card-4 w3-indigo"> Plot Trends</a>
+		<a href="{% url 'index' %}"  id="menu-load1" class="w3-bar-item w3-button"> Load Config</a>
+		<a href="{% url 'upload-baselines' %}"  id="menu-load1" class="w3-bar-item w3-button"> Load Baselines</a>
+		<a href="{% url 'upload-data' %}"  id="menu-load2" class="w3-bar-item w3-button"> Load Monthly and Process</a>
+		<a href="{% url 'download-csv' %}"  id="menu-save" class="w3-bar-item w3-button"> Save CSV</a>
+		<a href="{% url 'download-xls' %}"  id="menu-save" class="w3-bar-item w3-button"> Save XLSx</a>
+		<a href="{% url 'download-images' %}"  id="menu-save" class="w3-bar-item w3-button"> Save Images</a>
+		<a href="{% url 'upload-csv' %}"  id="menu-plot" class="w3-bar-item w3-button"> Prepare Trends</a>
+		<a href="{% url 'trends-form' %}"  id="menu-plot" class="w3-bar-item w3-button w3-card-4"> Plot Trends</a>
 	{% endif %}
 </div>
 </h4>

@@ -182,14 +182,31 @@ def analyze(request):
 		}
 	return render(request, 'analyze.html', context)
 
+def get_file_ext(path, ext):
+	files = os.listdir(path)
+	f_ext = None
+	if len(files) == 0:
+		error_msg = '  No data.'
+		return f_ext, error_msg
+	else:
+		for f in files:
+			if ext in f: f_ext = f
+		if f_ext:
+			return f_ext, None
+		else:
+			error_msg = f'   File(s) with {ext=} not found'
+			return f_ext, error_msg
+
 def download_csv(request):
 	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
 	res_files = os.listdir(res_path)
-	#image_files =[]
-	for f in res_files:
-		if '.csv' in f: csv_file = f
-	print(f'   results: found {csv_file=}')
-	sf = csv_file
+	sf, error_msg = get_file_ext(res_path, '.csv')
+	if error_msg:
+		context = {
+			'title': 'Error',
+			'error_msg': error_msg,
+			}
+		return render( request, 'message.html', context=context )
 
 	file_path = os.path.join(settings.MEDIA_ROOT, 'results', sf)
 	file_server = pathlib.Path(file_path)
@@ -205,11 +222,13 @@ def download_csv(request):
 def download_xls(request):
 	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
 	res_files = os.listdir(res_path)
-	#image_files =[]
-	for f in res_files:
-		if '.xls' in f: xls_file = f
-	print(f'   results: found {xls_file=}')
-	sf = xls_file
+	sf, error_msg = get_file_ext(res_path, '.xls')
+	if error_msg:
+		context = {
+			'title': 'Error',
+			'error_msg': error_msg,
+			}
+		return render( request, 'message.html', context=context )
 
 	file_path = os.path.join(settings.MEDIA_ROOT, 'results', sf)
 	file_server = pathlib.Path(file_path)
@@ -225,12 +244,13 @@ def download_xls(request):
 def download_images(request):
 	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
 	res_files = os.listdir(res_path)
-	image_files =[]
-	for f in res_files:
-		if '.png' in f:
-			image_files.append(f)
-			print(f'   results: found images: {f}')
-	sf = image_files[0]
+	sf, error_msg = get_file_ext(res_path, '.png')
+	if error_msg:
+		context = {
+			'title': 'Error',
+			'error_msg': error_msg,
+			}
+		return render( request, 'message.html', context=context )
 
 	file_path = os.path.join(settings.MEDIA_ROOT, 'results', sf)
 	file_server = pathlib.Path(file_path)
@@ -299,9 +319,13 @@ def trends_form(request):
 
 def trends(request):
 	user_csv_path = os.path.join(settings.MEDIA_ROOT, 'user_csv', )
-	csv_files = os.listdir(user_csv_path)
-	for f in csv_files:
-		if '.csv' in f: csv_file =  f
+	csv_file, error_msg = get_file_ext(user_csv_path, '.csv')
+	if error_msg:
+		context = {
+			'title': 'Error',
+			'error_msg': error_msg,
+			}
+		return render( request, 'message.html', context=context )
 	csv_path = os.path.join(user_csv_path, csv_file)
 
 	config_model = get_object_or_404(Config)
@@ -314,7 +338,7 @@ def trends(request):
 	flat_x, flat_y = [],[]
 	sym_x, sym_y = [],[]
 	dates=[]
-	#print (f'   treds: {csv_path=}, {energy=}, {machine=} ')
+	#print (f'   trends: {csv_path=}, {energy=}, {machine=} ')
 
 	with open(csv_path, newline='') as f_csv:
 		reader = csv.DictReader(f_csv, dialect='excel')
@@ -365,13 +389,6 @@ def trends(request):
 		'machine': machine,
 		}
 	return render( request, 'trends.html', context=context )
-
-
-#messages.debug(request, '%s SQL statements were executed.' % count)
-#messages.info(request, 'Three credits remain in your account.')
-#messages.success(request, 'Profile details updated.')
-#messages.warning(request, 'Your account expires in three days.')
-#messages.error(request, 'Document deleted.')
 
 # with open('path/test.pdf', 'rb') as pdf:
 	# response = HttpResponse(pdf.read())
