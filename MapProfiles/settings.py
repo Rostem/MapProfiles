@@ -15,7 +15,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 #SECRET_KEY = os.environ['SECRET_KEY']
-with open(os.path.join(BASE_DIR, 'secret_key.txt') ) as f:
+with open(os.path.join(BASE_DIR, 'sk.txt') ) as f:
     SECRET_KEY = f.read().strip()
 
 #DEBUG = True

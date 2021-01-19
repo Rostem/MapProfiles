@@ -65,6 +65,9 @@ def index(request):
 	return render(request, 'index.html', context)
 
 def upload_baselines(request):
+	if not os.path.isdir(settings.MEDIA_ROOT):
+		os.mkdir(settings.MEDIA_ROOT)
+
 	baselines_path = os.path.join(settings.MEDIA_ROOT, 'baselines')
 	del_status = prof.delete_files(baselines_path)
 
@@ -186,11 +189,16 @@ def analyze(request):
 	return render(request, 'analyze.html', context)
 
 def get_file_ext(path, ext):
-	files = os.listdir(path)
+	try:
+		files = os.listdir(path)
+	except:
+		error_msg = f'  Could not find data to process. \n Data folder does not exit. \nWere the previous steps complete?'
+		return None, error_msg
+
 	f_ext = None
 	if len(files) == 0:
-		error_msg = '  Could not find data.  Have you run top three buttons?'
-		return f_ext, error_msg
+		error_msg = '  Could not find data to process. \n Empty data folder. \nWere the previous steps complete?'
+		return None, error_msg
 	else:
 		for f in files:
 			if ext in f: f_ext = f
@@ -198,7 +206,7 @@ def get_file_ext(path, ext):
 			return f_ext, None
 		else:
 			error_msg = f'   File(s) with {ext=} not found'
-			return f_ext, error_msg
+			return None, error_msg
 
 def download_csv(request):
 	res_path = os.path.join(settings.MEDIA_ROOT, 'results')
@@ -288,7 +296,7 @@ def download_images(request):
 		#}
 	#return render( request, 'results.html', context=context )
 
-def upload_csv(request):
+def prepare_trends(request):
 	UploadCSV.objects.all().delete()
 	user_csv_path = os.path.join(settings.MEDIA_ROOT, 'user_csv')
 	del_status = prof.delete_files(user_csv_path)
@@ -303,7 +311,7 @@ def upload_csv(request):
 	context = {
 		'form': form,
 		}
-	return render(request, 'upload_csv.html', context)
+	return render(request, 'prepare_trends.html', context)
 
 def trends_form(request):
 	PlotTrends.objects.all().delete()
