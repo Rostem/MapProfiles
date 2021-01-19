@@ -51,6 +51,9 @@ class UploadBaselinesForm(ModelForm):
 		widgets = {
 			'baseline_files': ClearableFileInput(attrs={'multiple': True}),
 			}
+		#help_texts={
+			#'baseline_files': _('Press Load button after "No file chosen" changes to a number '),
+			#}
 
 class UploadDataForm(ModelForm):
 	class Meta:
@@ -59,6 +62,9 @@ class UploadDataForm(ModelForm):
 		widgets = {
 			'data_files': ClearableFileInput(attrs={'multiple': True}),
 			}
+		#help_texts={
+			#'data_files': _('Press Load button after "No file chosen" changes to a number '),
+			#}
 
 class UploadCSVForm(ModelForm):
 	class Meta:

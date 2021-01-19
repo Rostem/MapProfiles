@@ -2,25 +2,30 @@
 
 {% block content %}
 <style>
-#config-ex {
-  width: 50%;
-  padding: 3%;
-  border: 1px solid lightgray;
-  margin: 2%;
-}
+h3 {
+ 	color: blue;
+ }
 </style>
+<p>
 
-<h2><b> {{title}}<b> </h2>
+<h1><b><center> {{title}} </center> </b> </h1>
 <h4>
 This app analyzes measured mapcheck files and calculates various profile metrics, such as off-axis ratios at user defined points, flatness and symmetry and their % variation from the baselines. The program works by reading mapcheck files, extracting profiles, centering them them (to remove measurement positional uncertainty), applying some light smoothing in the central region and then calculating the requested metrics.
 <p>
 Please note, that there is more than one definition for for flatness and symmetry. User can switch between various definition by choosing between different available options. For example, to use IEC definition, replace "mean" with IEC.
 <p>
-<b>Usage:</b>
+
+<iframe width="42" height="31" src="https://www.youtube.com/embed/kgDzD-6qrKE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<p>
+<b><h3> Demo files for testing </h3></b>
+Demo baseline and monthly QA folders are available for testing from the following
+<a href="https://nmpcorg-my.sharepoint.com/:f:/g/personal/rbassalow_nmpc_org/EqSQ2-PXKgZBisZ5wPvZ9VABfeq8kK0uT3pNs7PGeStkMA?e=VGklUO"> demo data link </a>
+</h3>
+<h3><b>Usage:</b></h3>
 <p>
 <ul>
 <li> Before the program can be used, the user will receive login credentials,  accept or change default settings and prepare data. Login credentials are obtained on request from the system administrator. Preparation of data consists of naming all mapcheck data files following a strict naming convention, and this is the most important step, which is explained below.
-<li> The program is started by typing the following url: <a href="http://beamqa.herokuapp.com">beamqa.herokuapp.com </a> in your browser. At this time only Firefox and Chrome have been tested. The navigation bar contains login/logout buttons and help resources. The contols of the program exectution is done from the sidebar buttons.
+<li> At this time only Firefox and Chrome have been tested. The navigation bar contains login/logout buttons and help resources. The contols of the program exectution is done from the sidebar buttons.
 <li> <b>Load Config:</b>
 This is the first view where the user accepts or modifies default settings. This needs to be done only once per session.
 <li> <b>Load Baselines: </b>
@@ -29,32 +34,38 @@ will open a form to select your saved mapcheck QA files which will serve as the 
 You can use this button repeatedly to load and process monthly mapcheck files for different dates. Every time the program generates results, the data for that month is appended to the csv file and in the excel file in a new tab with all calculated metrics. Also one of the plots is saved as a png file. Any plot can be saved, but only OAR plot is saved at this time.
 Tip: Before pressing the Load button - wait until No file chosen is replaced with the number of selected files.
 <li> <b>Save CSV, Save XLS and Save Images</b>
-- can be used to save monthly results in the csv, xls and image files locally on the user's hard drive. Please note: that you can create one xls file with multiple dates places in separate tabs if you run several dates in a row, without closing the session. Also the csv file fill have all data appended from different dates that can be used for plotting treds and pressing Plot Trends button.
-<li><b> Prepare Trends: </b> This will present a form to upload a csv file with multiple dates that you saved earlier.
-<li><b> Plot Trends: </b> This will ask for energy to plot trends for and will plot all data available in the locally saved csv file for multiple dates and for this energy. If you save csv for one date - it will plot one date values only. In order to plot trends for multiple dates - the user should run "Load Monthly and Process" repeatedly for all desired dates then click on "Save CSV" to save the csv somewhere locally on user's hard drive. Then run "Plot Trends" and select this saved csv file. Please note: because multiple users use the same program, at the end of each session, all temporary saved server files are purged. Files are not saved in a database.
+- can be used to save monthly results in the csv, xls and image files locally on the user's hard drive. Please note: that you can create one xls file with multiple dates places in separate tabs if you run several dates in a row, without closing the session. Also the csv file will have all data appended from different dates that can be used for plotting treds and pressing Plot Trends button.
+<li><b> Prepare Trends: </b> This will present a form to upload a csv file with one or more dates that you saved earlier.
+<li><b> Plot Trends: </b> This will plot all data available in the locally saved csv file for the available dates and for the selected energy. If you save csv for one date - it will plot one date values only. In order to plot trends for multiple dates, there are two choices: 1) user can run "Load Monthly and Process" repeatedly for a number of desired dates in the same session, then click on "Save CSV" to save the combined csv then open it in Prepare Trends, 2) user can upload a csv saved earlier and load it in Prepare Trends then run Trends. For plotting the trends, all that is needed is a csv file. It is not required to run previous steps (Load baselines and data) if you already have a csv file available. But the csv file should be avialable, for example saved from a previous session. A (not recommended) option is for the user to manually append rows for new dates from other previously saved csv files that contain one or some dates. In the future verion, Prepare trends will be able to concatenate single date csvs automatically and construct a multiple date trend.
 </ul>
 <p>
 
-<b>File and folder naming:</b>
+<h3><b>File and folder naming:</b></h3>
 <ul>
 <li> It is best not to use spaces in file names. The program uses "-" separator within the file name to separate machine name from year from month and from energy.
 <li> The following format should be used: <b> Machine-YYYY-MM-Energy-optionaltext.txt </b>, e.g. IX-2020-02-06e.txt and Awesome_TrueBeam-2021-09-10FFF-SSD100.txt are valid file names.
 </ul>
 
-<b>Recommended directory structure (but not required):</b>
+<h3><b>Recommended directory structure (but not required):</b></h3>
 <ul>
-<li> A parent folder that has all mapcheck related files (user can call it anything). In this folder make subfolders with names = your machine names (no spaces in names). In each machine folder  make subfolders for each month and for baseline files. Place all your monthly mapchecks files in the year-month subfolder, and your baselines files to the baseline subfolder. There are no restrictions on the length of machine name. The energy field is limited to 5 symbols to accomodate FFF fileds. The month should be zero padded (01). All folder names can be anything you like, the only non-optional is the mapcheck txt file naming format.
+<li> A parent folder that has all mapcheck related files (user can call it anything). In this folder make subfolders with names, e.g. your machine names. In each machine folder  make subfolders for each month and for baseline files. Place all your monthly mapchecks files in a subfolder, and your baselines files to a separate baseline subfolder. If you want to have all files for all dates, energies and machines in the same folder - this is totally fine, as long as you are able to load baseline and monthly files for a specific machine and date in the forms. There are no restrictions on the length of machine name. The energy field is limited to 5 symbols to accomodate FFF fileds. Folder names can be anything you like, the only requirements is the naming of the mapcheck files.
 <li> For example the path to the monthly and baseline files may look like these:
 <ul>
-<li> ...\my_map_data\IX\2021-01\IX-2021-01-06e.txt
-<li> ...\mapcheck\TB_A\2021-05\TrueBeam_A-2021-05-10FFF.txt
-<li> ...\Documents\Edge\my_ref\Edge-2021-01-06e.txt
-<li> ...\QA\TB\baselines\TrueBeam-2021-01-6X.txt
+<li> ...\TB_A\ref\TrueBeam_A-2021-01-6FFF.txt
+<li> ...\TB_A\ref\TrueBeam_A-2021-01-10FFF.txt
+<li> ...
+<li> ...\TB_A\2021-02\TrueBeam_A-2021-02-6X.txt
+<li> ...\TB_A\2021-02\TrueBeam_A-2021-02-6FFF.txt
+<li> ...\TB_A\2021-02\TrueBeam_A-2021-02-10FFF.txt
+<li> ...
+<li> ...\TB_A\2021-03\TrueBeam_A-2021-03-10FFF.txt
+<li> ...
 </ul>
 <p>
-<b>Config settings:</b>
+
+<h3><b>Config settings:</b></h3>
 <p>
-	<table class="w3-table  w3-right-aligned w3-card-4" style="width:90%">
+	<table class="w3-table-all  w3-right-aligned w3-card-4" style="width:90%">
 		<thead>
 		<tr class="w3-blue">
 			<th>Parameter</th>

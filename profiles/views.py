@@ -138,8 +138,11 @@ def analyze(request):
 	if error_msg:
 		context = {
 			'title': 'Error',
-			'error_msg': error_msg,
-			'msg': f'\n Please check that: all files follow strict naming convention',
+			'msg': error_msg,
+			'msg': f'\n Please check that: all files follow strict naming convention. \
+				\n Possible mismatch between the baselines and the monthly data. \
+				\n Do the baselines and monthly share the same machine? \
+				\n Do the baselines and monthly have the same spelling of the energies? '
 			}
 		return render( request, 'message.html', context=context )
 
@@ -186,7 +189,7 @@ def get_file_ext(path, ext):
 	files = os.listdir(path)
 	f_ext = None
 	if len(files) == 0:
-		error_msg = '  No data.'
+		error_msg = '  Could not find data.  Have you run top three buttons?'
 		return f_ext, error_msg
 	else:
 		for f in files:
@@ -204,7 +207,7 @@ def download_csv(request):
 	if error_msg:
 		context = {
 			'title': 'Error',
-			'error_msg': error_msg,
+			'msg': error_msg,
 			}
 		return render( request, 'message.html', context=context )
 
@@ -226,7 +229,7 @@ def download_xls(request):
 	if error_msg:
 		context = {
 			'title': 'Error',
-			'error_msg': error_msg,
+			'msg': error_msg,
 			}
 		return render( request, 'message.html', context=context )
 
@@ -248,7 +251,7 @@ def download_images(request):
 	if error_msg:
 		context = {
 			'title': 'Error',
-			'error_msg': error_msg,
+			'msg': error_msg,
 			}
 		return render( request, 'message.html', context=context )
 
@@ -323,7 +326,7 @@ def trends(request):
 	if error_msg:
 		context = {
 			'title': 'Error',
-			'error_msg': error_msg,
+			'msg': error_msg,
 			}
 		return render( request, 'message.html', context=context )
 	csv_path = os.path.join(user_csv_path, csv_file)

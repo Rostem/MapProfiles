@@ -13,12 +13,19 @@ Trends will be shown for the selected energy and for the available data in the s
 				{{ form.as_table }}
 				</table>
 
-				<input type="submit" value="Select energy and Run Trends" class="w3-button w3-blue-gray">
+				<input type="submit" value="Select Energy and Run Trends" class="w3-button w3-blue-gray">
 			</label>
 		</form>
+		<ul>
+			<li> Enter desired energy. The energy must be one of those that are listed in the csv file (and in your mapcheck file names).
+			<li> Press Select energy and Run Trends button.
+			<li> Trends will be generated for that energy.
+			<li> Press Plot Trends bitton repeatedly to see trends for other energies.
+			<li> There is no need to run top three buttons if you already have a csv file from last time. Just select it in Prepare Trends step and run it.
+			<li> Please note: trends will show only for those dates. machines and energies that are present in the csv file.
+			<li> The csv file will have only the dates that have been accumulated in one session by running multiple dates in a row by pressing the Load Monthly button with subsequent clicking the Save CSV button.
+		</ul>
 	</div>
-<br>
-To plot more dates - please run more monthly data using Load Monthly button:</h2>
 </h4>
 
 {% endblock %}

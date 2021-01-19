@@ -1,16 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2> {{title}} </h2>
-<p>
-<div w3-container style="width:90%">
-<h3 class="w3-yellow w3-text-red">{{error_msg|linebreaks}}</h3>
-<h4>
-{% if title == "Error" %} <div class="w3-red">{{msg|linebreaks}}</div>
-{% elif title == "Warning" %} <div class="w3-amber"> {{msg|linebreaks}}</div>
-{% else %} {{msg|linebreaks}} <p>
+<h2>
+<div w3-container style="width:50%">
+{% if title == "Error" %}
+	<div class="w3-yellow w3-text-red"> {{title}} </div>
+	<p>
+	<div class="w3-red">{{msg|linebreaks}}</div>
+{% elif title == "Warning" %}
+	<div class="w3-yellow w3-text-red"> {{title}} </div>
+	<p>
+	<div class="w3-amber">{{msg|linebreaks}}</div>
+{% else %}
+	<div class="w3-yellow w3-text-red"> {{title}} </div>
+	<p>
+	<div class="w3-orange">{{msg|linebreaks}}</div>
 {% endif %}
-</h4>
+</h2>
 </div>
 
 {% endblock %}
