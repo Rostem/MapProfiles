@@ -21,17 +21,13 @@ class Read_mpck:
 		self.s_f = os.path.split(s_fin)[1]
 		self.lines = fin.readlines()
 		self.got_data = False
+		self.line_count = 0
 		[self.line_before, self.nx, self.ny, self.ic, self.jc] = [0, 0, 0, 0, 0]
 		fin.close()
 		ksize_med = 3
 		sigma_gauss = 1
 		k_sg1, k_sg2 = 7, 3  # sav-gol parameters
-		self.line_count = 0
-		if 'MapCHECK 3' in self.lines[0]:  
-			print('   Using MC3 ...\n')
-			self.get_dose_mc3()     # -> self.x, self.dx
-		else:
-			self.get_dose()     # -> self.x, self.dx	
+		self.get_dose()     # -> self.x, self.dx
 		self.xs, self.dxs = dfl.sg_filter(self.x, self.dx, config.k_int, k_sg1, k_sg2, config.n_eval+3)
 		self.ys, self.dys = dfl.sg_filter(self.y, self.dy, config.k_int, k_sg1, k_sg2, config.n_eval+3)
 		self.flat_x, self.sym_x, self.OAR_x = ptl.calc_prof_metrics(self.xs, self.dxs, config)
@@ -73,38 +69,7 @@ class Read_mpck:
 					self.y[j] = float(dat[0])
 					for i in range(self.nx):
 						self.x[i] = -(self.nx - 1) / 4 + i / 2
-						self.D[j, i] = float(dat[i + 2])					
+						self.D[j, i] = float(dat[i + 2])
 		self.dx = self.D[self.jc, :]
 		self.dy = self.D[:, self.ic]
 		self.cax_val = self.D[self.jc, self.ic]
-		
-	def get_dose_mc3(self):
-		for line in self.lines:
-			self.line_count += 1
-			dat = line.split()
-			# print (self.line_count, dat)
-			if len(dat) > 0:
-				if 'Row Counts' in line:
-					self.ny = int(dat[4])
-					self.y = np.zeros(self.ny, dtype=np.float32)
-				if 'Col Counts' in line:
-					self.nx = int(dat[4])
-					self.x = np.zeros(self.nx, dtype=np.float16)
-					self.D = np.zeros((self.ny, self.nx), dtype=np.float32)
-				if 'CaxY:' in line:
-					self.jc = int(dat[1]) - 1
-				if 'CaxX:' in line:
-					self.ic = int(dat[1]) - 1
-				if 'Dose Interpolated' in line: self.got_data = True
-				if self.got_data and 'Ycm' in line and 'ROW' in line:
-					self.line_before = self.line_count
-				if self.got_data and self.line_count > self.line_before and self.line_count < (self.line_before + self.ny + 1):
-					j = self.line_count - self.line_before - 1
-					self.y[j] = float(dat[0])
-					for i in range(self.nx):
-						self.x[i] = -(self.nx - 1) / 4 + i / 2
-						self.D[j, i] = float(dat[i + 2])					
-		self.dx = self.D[self.jc, :]
-		self.dy = self.D[:, self.ic]
-		self.cax_val = self.D[self.jc, self.ic]
-		

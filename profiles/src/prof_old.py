@@ -71,7 +71,7 @@ def rename_files(path):
 				oldf = os.path.join(path, f)
 				newf = os.path.join(path, newname)
 				os.rename(oldf, newf)
-				#print (f'   {f} -> {newname}')
+				print (f'   {f} -> {newname}')
 			#else:
 			#	print( f'     skipping: {f} = {newname}')
 	return True
@@ -128,7 +128,8 @@ def get_s_metrics(M):
 
 def check_add_s_metrics(X, tol, s):
 	for x in X:
-		#if abs(x) > tol:	print (f'  Tolerance = {tol: .1f} exceeded. Got {x:.2f}')
+		if abs(x) > tol:
+			print (f'  Tolerance = {tol: .1f} exceeded. Got {x:.2f}')
 		s += str(x) + ','
 	return s
 
@@ -199,7 +200,7 @@ def calc_profiles(data_dict, config):
 	i_row = 0
 	for s_f in s_data_files:
 		if not os.path.isfile(s_f):
-			error_msg = f'   calc_profiles: could not find data file: {s_f =}'
+			error_msg = f'   calc_profiles: could not find {s_f =}'
 			print(error_msg)
 			return None, error_msg
 		else:
@@ -207,7 +208,7 @@ def calc_profiles(data_dict, config):
 
 		s_base_file = os.path.join(baselines_path, Map.machine + '-' + s_baselines_date  + '-' + Map.energy + '.txt')
 		if not os.path.isfile(s_base_file):
-			error_msg = f'   calc_profiles: could not find baseline file: {s_base_file =}'
+			error_msg = f'   calc_profiles: could not find {s_base_file =}'
 			print(error_msg)
 			return None, error_msg
 		else:
